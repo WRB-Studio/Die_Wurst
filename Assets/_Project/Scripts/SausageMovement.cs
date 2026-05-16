@@ -189,4 +189,9 @@ public class SausageMovement : MonoBehaviour
             Gizmos.DrawLine(laneStart, laneEnd);
         }
     }
+
+    public void SetChainBonus(float bonus)
+    {
+        chainBonus = Mathf.Clamp(bonus, 0f, maxChainBonus);
+    }
 }
