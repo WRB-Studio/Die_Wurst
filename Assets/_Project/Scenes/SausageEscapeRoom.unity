@@ -136,7 +136,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &171204828
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2916,6 +2916,7 @@ MonoBehaviour:
   followSmoothness: 6
   joinDuration: 0.25
   joinArcHeight: 0.35
+  grinderDropX: -3.5
   chainBonusPerSegment: 0.12
   segmentParent: {fileID: 1796509380}
 --- !u!54 &2019272787
