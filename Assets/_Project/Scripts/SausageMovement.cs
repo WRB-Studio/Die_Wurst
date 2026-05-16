@@ -5,7 +5,8 @@ public class SausageMovement : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 4f;
-    [SerializeField] private float laneChangeSpeed = 6f;
+    [SerializeField] private float laneJumpSpeed = 6f;
+    [SerializeField] private float laneJumpHeight = 0.75f;
 
     [Header("X Limits")]
     [SerializeField] private float minX = -6f;
@@ -26,13 +27,21 @@ public class SausageMovement : MonoBehaviour
     private InputAction moveAction;
     private Vector2 moveInput;
     private int currentLaneIndex;
-    private float targetLaneZ;
+    private int pendingLaneIndex;
+    private float baseY;
     private bool laneInputLocked;
+    private bool isLaneJumping;
+    private float laneJumpStartZ;
+    private float laneJumpTargetZ;
+    private float laneJumpDuration;
+    private float laneJumpElapsed;
 
     private void Awake()
     {
         currentLaneIndex = GetValidLaneIndex(startLaneIndex);
-        targetLaneZ = GetLanePosition(currentLaneIndex);
+        pendingLaneIndex = currentLaneIndex;
+        baseY = transform.position.y;
+        SnapToCurrentLane();
     }
 
     private void OnEnable()
@@ -84,19 +93,24 @@ public class SausageMovement : MonoBehaviour
             return;
         }
 
+        if (isLaneJumping)
+        {
+            return;
+        }
+
         laneInputLocked = true;
 
         if (moveInput.y > 0.5f)
         {
-            SetLane(currentLaneIndex + 1);
+            StartLaneJump(currentLaneIndex + 1);
         }
         else if (moveInput.y < -0.5f)
         {
-            SetLane(currentLaneIndex - 1);
+            StartLaneJump(currentLaneIndex - 1);
         }
     }
 
-    private void SetLane(int newLaneIndex)
+    private void StartLaneJump(int newLaneIndex)
     {
         int clampedLaneIndex = GetValidLaneIndex(newLaneIndex);
 
@@ -105,8 +119,21 @@ public class SausageMovement : MonoBehaviour
             return;
         }
 
-        currentLaneIndex = clampedLaneIndex;
-        targetLaneZ = GetLanePosition(currentLaneIndex);
+        pendingLaneIndex = clampedLaneIndex;
+        laneJumpStartZ = transform.position.z;
+        laneJumpTargetZ = GetLanePosition(pendingLaneIndex);
+
+        float laneDistance = Mathf.Abs(laneJumpTargetZ - laneJumpStartZ);
+
+        if (laneDistance < 0.001f)
+        {
+            CompleteLaneJump();
+            return;
+        }
+
+        laneJumpDuration = laneDistance / Mathf.Max(laneJumpSpeed, 0.01f);
+        laneJumpElapsed = 0f;
+        isLaneJumping = true;
     }
 
     private void MoveHorizontally()
@@ -123,7 +150,44 @@ public class SausageMovement : MonoBehaviour
     private void MoveToLane()
     {
         Vector3 position = transform.position;
-        position.z = Mathf.MoveTowards(position.z, targetLaneZ, laneChangeSpeed * Time.deltaTime);
+        position.y = baseY;
+
+        if (!isLaneJumping)
+        {
+            position.z = GetLanePosition(currentLaneIndex);
+            transform.position = position;
+            return;
+        }
+
+        laneJumpElapsed += Time.deltaTime;
+
+        float progress = Mathf.Clamp01(laneJumpElapsed / Mathf.Max(laneJumpDuration, 0.01f));
+        position.z = Mathf.Lerp(laneJumpStartZ, laneJumpTargetZ, progress);
+        position.y = baseY + 4f * laneJumpHeight * progress * (1f - progress);
+        transform.position = position;
+
+        if (progress >= 1f)
+        {
+            CompleteLaneJump();
+        }
+    }
+
+    private void CompleteLaneJump()
+    {
+        currentLaneIndex = pendingLaneIndex;
+        isLaneJumping = false;
+
+        Vector3 position = transform.position;
+        position.z = GetLanePosition(currentLaneIndex);
+        position.y = baseY;
+        transform.position = position;
+    }
+
+    private void SnapToCurrentLane()
+    {
+        Vector3 position = transform.position;
+        position.z = GetLanePosition(currentLaneIndex);
+        position.y = baseY;
         transform.position = position;
     }
 
