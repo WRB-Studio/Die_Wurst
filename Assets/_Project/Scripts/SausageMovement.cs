@@ -15,6 +15,7 @@ public class SausageMovement : MonoBehaviour
     [Header("Lane Positions")]
     [SerializeField] private Transform[] lanePoints;
     [SerializeField] private int startLaneIndex = 1;
+    [SerializeField] private float laneYOffset = 0f;
 
     [Header("Window Resistance")]
     [SerializeField] private AnimationCurve forwardResistanceCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0.2f);
@@ -28,9 +29,10 @@ public class SausageMovement : MonoBehaviour
     private Vector2 moveInput;
     private int currentLaneIndex;
     private int pendingLaneIndex;
-    private float baseY;
     private bool laneInputLocked;
     private bool isLaneJumping;
+    private float laneJumpStartY;
+    private float laneJumpTargetY;
     private float laneJumpStartZ;
     private float laneJumpTargetZ;
     private float laneJumpDuration;
@@ -40,7 +42,6 @@ public class SausageMovement : MonoBehaviour
     {
         currentLaneIndex = GetValidLaneIndex(startLaneIndex);
         pendingLaneIndex = currentLaneIndex;
-        baseY = transform.position.y;
         SnapToCurrentLane();
     }
 
@@ -120,10 +121,15 @@ public class SausageMovement : MonoBehaviour
         }
 
         pendingLaneIndex = clampedLaneIndex;
+        laneJumpStartY = transform.position.y;
+        laneJumpTargetY = GetLaneHeightWithOffset(pendingLaneIndex);
         laneJumpStartZ = transform.position.z;
         laneJumpTargetZ = GetLanePosition(pendingLaneIndex);
 
-        float laneDistance = Mathf.Abs(laneJumpTargetZ - laneJumpStartZ);
+        float laneDistance = Vector2.Distance(
+            new Vector2(laneJumpStartZ, laneJumpStartY),
+            new Vector2(laneJumpTargetZ, laneJumpTargetY)
+        );
 
         if (laneDistance < 0.001f)
         {
@@ -150,11 +156,11 @@ public class SausageMovement : MonoBehaviour
     private void MoveToLane()
     {
         Vector3 position = transform.position;
-        position.y = baseY;
 
         if (!isLaneJumping)
         {
             position.z = GetLanePosition(currentLaneIndex);
+            position.y = GetLaneHeightWithOffset(currentLaneIndex);
             transform.position = position;
             return;
         }
@@ -163,7 +169,7 @@ public class SausageMovement : MonoBehaviour
 
         float progress = Mathf.Clamp01(laneJumpElapsed / Mathf.Max(laneJumpDuration, 0.01f));
         position.z = Mathf.Lerp(laneJumpStartZ, laneJumpTargetZ, progress);
-        position.y = baseY + 4f * laneJumpHeight * progress * (1f - progress);
+        position.y = Mathf.Lerp(laneJumpStartY, laneJumpTargetY, progress) + 4f * laneJumpHeight * progress * (1f - progress);
         transform.position = position;
 
         if (progress >= 1f)
@@ -179,7 +185,7 @@ public class SausageMovement : MonoBehaviour
 
         Vector3 position = transform.position;
         position.z = GetLanePosition(currentLaneIndex);
-        position.y = baseY;
+        position.y = GetLaneHeightWithOffset(currentLaneIndex);
         transform.position = position;
     }
 
@@ -187,7 +193,7 @@ public class SausageMovement : MonoBehaviour
     {
         Vector3 position = transform.position;
         position.z = GetLanePosition(currentLaneIndex);
-        position.y = baseY;
+        position.y = GetLaneHeightWithOffset(currentLaneIndex);
         transform.position = position;
     }
 
@@ -221,6 +227,22 @@ public class SausageMovement : MonoBehaviour
         return lanePoint != null ? lanePoint.position.z : transform.position.z;
     }
 
+    private float GetLaneHeight(int laneIndex)
+    {
+        if (lanePoints == null || lanePoints.Length == 0)
+        {
+            return transform.position.y;
+        }
+
+        Transform lanePoint = lanePoints[GetValidLaneIndex(laneIndex)];
+        return lanePoint != null ? lanePoint.position.y : transform.position.y;
+    }
+
+    private float GetLaneHeightWithOffset(int laneIndex)
+    {
+        return GetLaneHeight(laneIndex) + laneYOffset;
+    }
+
     private void OnDrawGizmosSelected()
     {
         if (!drawDebugGizmos)
@@ -248,8 +270,9 @@ public class SausageMovement : MonoBehaviour
             }
 
             float laneZ = lanePoint.position.z;
-            Vector3 laneStart = new Vector3(minX, transform.position.y, laneZ);
-            Vector3 laneEnd = new Vector3(maxX, transform.position.y, laneZ);
+            float laneY = lanePoint.position.y;
+            Vector3 laneStart = new Vector3(minX, laneY, laneZ);
+            Vector3 laneEnd = new Vector3(maxX, laneY, laneZ);
             Gizmos.DrawLine(laneStart, laneEnd);
         }
     }

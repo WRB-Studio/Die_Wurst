@@ -2,8 +2,18 @@ using UnityEngine;
 
 public class LaneThrownObject : MonoBehaviour
 {
+    private enum MovementState
+    {
+        Throwing,
+        OnLane,
+        FallingIntoShredder
+    }
+
     [SerializeField] private float conveyorSpeed = 3f;
     [SerializeField] private float destroyX = -20f;
+    [SerializeField] private float shredderPullDistance = 0.4f;
+    [SerializeField] private float shredderDropDistance = 2.5f;
+    [SerializeField] private float shredderFallSpeed = 5f;
 
     private Rigidbody body;
     private Vector3 throwStartPosition;
@@ -11,14 +21,24 @@ public class LaneThrownObject : MonoBehaviour
     private float throwDuration;
     private float throwArcHeight;
     private float throwProgress;
-    private bool isOnLane;
+    private MovementState movementState;
+    private Vector3 shredderTargetPosition;
 
     private void Awake()
     {
         body = GetComponent<Rigidbody>();
     }
 
-    public void Initialize(Vector3 startPosition, Vector3 targetLanePosition, float targetThrowDuration, float targetThrowArcHeight, float laneMoveSpeed, float destroyAtX)
+    public void Initialize(
+        Vector3 startPosition,
+        Vector3 targetLanePosition,
+        float targetThrowDuration,
+        float targetThrowArcHeight,
+        float laneMoveSpeed,
+        float destroyAtX,
+        float targetShredderPullDistance,
+        float targetShredderDropDistance,
+        float targetShredderFallSpeed)
     {
         throwStartPosition = startPosition;
         lanePosition = targetLanePosition;
@@ -27,25 +47,35 @@ public class LaneThrownObject : MonoBehaviour
         throwProgress = 0f;
         conveyorSpeed = laneMoveSpeed;
         destroyX = destroyAtX;
-        isOnLane = false;
+        shredderPullDistance = targetShredderPullDistance;
+        shredderDropDistance = targetShredderDropDistance;
+        shredderFallSpeed = targetShredderFallSpeed;
+        movementState = MovementState.Throwing;
+        shredderTargetPosition = Vector3.zero;
 
         if (body != null)
         {
-            body.isKinematic = true;
             body.linearVelocity = Vector3.zero;
             body.angularVelocity = Vector3.zero;
+            body.isKinematic = true;
         }
     }
 
     private void Update()
     {
-        if (!isOnLane)
+        if (movementState == MovementState.Throwing)
         {
             UpdateThrow();
             return;
         }
 
-        MoveOnLane();
+        if (movementState == MovementState.OnLane)
+        {
+            MoveOnLane();
+            return;
+        }
+
+        UpdateShredderFall();
     }
 
     private void UpdateThrow()
@@ -67,13 +97,12 @@ public class LaneThrownObject : MonoBehaviour
 
     private void AttachToLane()
     {
-        isOnLane = true;
+        movementState = MovementState.OnLane;
         transform.position = lanePosition;
 
         if (body != null)
         {
-            body.linearVelocity = Vector3.zero;
-            body.angularVelocity = Vector3.zero;
+            body.position = lanePosition;
         }
     }
 
@@ -84,6 +113,22 @@ public class LaneThrownObject : MonoBehaviour
         transform.position = position;
 
         if (position.x <= destroyX)
+        {
+            StartShredderFall();
+        }
+    }
+
+    private void StartShredderFall()
+    {
+        movementState = MovementState.FallingIntoShredder;
+        shredderTargetPosition = transform.position + new Vector3(-shredderPullDistance, -shredderDropDistance, 0f);
+    }
+
+    private void UpdateShredderFall()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, shredderTargetPosition, shredderFallSpeed * Time.deltaTime);
+
+        if (Vector3.Distance(transform.position, shredderTargetPosition) <= 0.01f)
         {
             Destroy(gameObject);
         }
