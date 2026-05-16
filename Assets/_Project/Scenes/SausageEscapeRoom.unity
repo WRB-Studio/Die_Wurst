@@ -136,7 +136,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &171204828
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2706,6 +2706,7 @@ MonoBehaviour:
   - {fileID: 1612910926}
   throwablePrefabs:
   - {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
+  - {fileID: 3294577712733071579, guid: b69841faaae5e0b46b3fb79c94aba820, type: 3}
   minThrowInterval: 0.4
   maxThrowInterval: 1.2
   minTargetXOffset: 4
@@ -2916,6 +2917,7 @@ MonoBehaviour:
   followSmoothness: 6
   joinDuration: 0.25
   joinArcHeight: 0.35
+  grinderDropX: -3.5
   chainBonusPerSegment: 0.12
   segmentParent: {fileID: 1796509380}
 --- !u!54 &2019272787
