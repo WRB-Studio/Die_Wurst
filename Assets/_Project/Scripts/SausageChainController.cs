@@ -3,17 +3,25 @@ using UnityEngine;
 
 public class SausageChainController : MonoBehaviour
 {
+    private class ChainSegment
+    {
+        public Transform Transform;
+        public bool IsJoining;
+        public Vector3 JoinStartPosition;
+        public float JoinElapsed;
+    }
+
     [Header("Chain")]
     [SerializeField] private float segmentSpacing = 1.1f;
+    [SerializeField] private float segmentYOffset = 0f;
     [SerializeField] private float followSmoothness = 12f;
-    [SerializeField] private float historyResolution = 0.1f;
+    [SerializeField] private float joinDuration = 0.25f;
+    [SerializeField] private float joinArcHeight = 0.35f;
     [SerializeField] private float chainBonusPerSegment = 0.12f;
     [SerializeField] private Transform segmentParent;
 
-    private readonly List<Transform> collectedSegments = new();
-    private readonly List<Vector3> positionHistory = new();
+    private readonly List<ChainSegment> collectedSegments = new();
     private SausageMovement sausageMovement;
-    private Vector3 lastRecordedPosition;
 
     public int SegmentCount => collectedSegments.Count;
     public float ChainBonus => collectedSegments.Count * chainBonusPerSegment;
@@ -30,14 +38,11 @@ public class SausageChainController : MonoBehaviour
 
     private void Start()
     {
-        lastRecordedPosition = transform.position;
-        positionHistory.Add(transform.position);
         ApplyChainBonus();
     }
 
     private void LateUpdate()
     {
-        RecordPosition();
         UpdateSegments();
     }
 
@@ -48,79 +53,110 @@ public class SausageChainController : MonoBehaviour
             return;
         }
 
-        if (collectedSegments.Contains(segment))
+        if (ContainsSegment(segment))
         {
             return;
         }
-
-        collectedSegments.Add(segment);
 
         if (segmentParent != null)
         {
             segment.SetParent(segmentParent);
         }
 
+        collectedSegments.Add(new ChainSegment
+        {
+            Transform = segment,
+            IsJoining = true,
+            JoinStartPosition = segment.position,
+            JoinElapsed = 0f
+        });
+
         ApplyChainBonus();
-    }
-
-    private void RecordPosition()
-    {
-        if (Vector3.Distance(lastRecordedPosition, transform.position) < historyResolution)
-        {
-            return;
-        }
-
-        positionHistory.Insert(0, transform.position);
-        lastRecordedPosition = transform.position;
-
-        int maxHistoryCount = Mathf.Max(10, Mathf.CeilToInt((collectedSegments.Count + 2) * segmentSpacing / Mathf.Max(historyResolution, 0.01f)));
-
-        while (positionHistory.Count > maxHistoryCount)
-        {
-            positionHistory.RemoveAt(positionHistory.Count - 1);
-        }
     }
 
     private void UpdateSegments()
     {
-        if (collectedSegments.Count == 0 || positionHistory.Count == 0)
+        if (collectedSegments.Count == 0)
         {
             return;
         }
 
         for (int i = 0; i < collectedSegments.Count; i++)
         {
-            Transform segment = collectedSegments[i];
+            ChainSegment segmentData = collectedSegments[i];
+            Transform segment = segmentData.Transform;
 
             if (segment == null)
             {
                 continue;
             }
 
-            int historyIndex = GetHistoryIndexForSegment(i);
-            Vector3 targetPosition = positionHistory[Mathf.Min(historyIndex, positionHistory.Count - 1)];
-            segment.position = Vector3.Lerp(segment.position, targetPosition, followSmoothness * Time.deltaTime);
+            Transform leader = i == 0 ? transform : collectedSegments[i - 1].Transform;
+            Vector3 targetPosition = GetTargetPositionBehindLeader(leader, segment.position);
+            targetPosition.y += segmentYOffset;
 
-            Vector3 lookDirection = GetLookDirection(segment.position, targetPosition);
-
-            if (lookDirection.sqrMagnitude > 0.0001f)
+            if (segmentData.IsJoining)
             {
-                segment.rotation = Quaternion.Lerp(segment.rotation, Quaternion.LookRotation(lookDirection), followSmoothness * Time.deltaTime);
+                UpdateJoiningSegment(segmentData, targetPosition);
+                continue;
             }
+
+            segment.position = Vector3.MoveTowards(segment.position, targetPosition, followSmoothness * Time.deltaTime);
         }
     }
 
-    private int GetHistoryIndexForSegment(int segmentIndex)
+    private Vector3 GetTargetPositionBehindLeader(Transform leader, Vector3 currentSegmentPosition)
     {
-        float distanceBack = (segmentIndex + 1) * segmentSpacing;
-        return Mathf.RoundToInt(distanceBack / Mathf.Max(historyResolution, 0.01f));
+        Vector3 direction = currentSegmentPosition - leader.position;
+        float currentY = currentSegmentPosition.y;
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.0001f)
+        {
+            direction = -leader.forward;
+            direction.y = 0f;
+        }
+
+        if (direction.sqrMagnitude < 0.0001f)
+        {
+            direction = Vector3.left;
+        }
+
+        Vector3 targetPosition = leader.position + direction.normalized * segmentSpacing;
+        targetPosition.y = currentY;
+        return targetPosition;
     }
 
-    private Vector3 GetLookDirection(Vector3 currentPosition, Vector3 targetPosition)
+    private void UpdateJoiningSegment(ChainSegment segmentData, Vector3 targetPosition)
     {
-        Vector3 direction = targetPosition - currentPosition;
-        direction.y = 0f;
-        return direction;
+        Transform segment = segmentData.Transform;
+        segmentData.JoinElapsed += Time.deltaTime;
+
+        float progress = Mathf.Clamp01(segmentData.JoinElapsed / Mathf.Max(joinDuration, 0.01f));
+        float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+        Vector3 position = Vector3.Lerp(segmentData.JoinStartPosition, targetPosition, easedProgress);
+        position.y += 4f * joinArcHeight * progress * (1f - progress);
+
+        segment.position = position;
+
+        if (progress >= 1f)
+        {
+            segmentData.IsJoining = false;
+            segment.position = targetPosition;
+        }
+    }
+
+    private bool ContainsSegment(Transform segment)
+    {
+        foreach (ChainSegment collectedSegment in collectedSegments)
+        {
+            if (collectedSegment.Transform == segment)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void ApplyChainBonus()
