@@ -27,6 +27,7 @@ public class ChefPatrol : MonoBehaviour
 
     private void Start()
     {
+        AudioManager.Instance.PlaySFX("sfx_running02", true); // Spielt den ersten Soundeffekt (z.B. Schritte) ab
         targetX = GetRandomTargetX();
 
         if (startWithRandomWait)
