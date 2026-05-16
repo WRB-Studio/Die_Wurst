@@ -773,11 +773,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19ac463df6e1de14fbad731ca2cc1945, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SausageChainController
-  segmentSpacing: 0.2
+  segmentSpacing: 0.5
   segmentYOffset: 0
   followSmoothness: 6
   joinDuration: 0.25
   joinArcHeight: 0.35
+  grinderDropX: -3.5
   chainBonusPerSegment: 0.12
   segmentParent: {fileID: 1249445732}
 --- !u!54 &530263701
