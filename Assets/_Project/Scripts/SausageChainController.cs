@@ -74,6 +74,35 @@ public class SausageChainController : MonoBehaviour
         ApplyChainBonus();
     }
 
+    public bool ReleaseLastSegment()
+    {
+        for (int i = collectedSegments.Count - 1; i >= 0; i--)
+        {
+            ChainSegment segmentData = collectedSegments[i];
+
+            if (segmentData.Transform == null)
+            {
+                collectedSegments.RemoveAt(i);
+                continue;
+            }
+
+            collectedSegments.RemoveAt(i);
+
+            CollectableSausage collectableSausage = segmentData.Transform.GetComponent<CollectableSausage>();
+
+            if (collectableSausage != null)
+            {
+                collectableSausage.ReleaseFromChain(transform);
+            }
+
+            ApplyChainBonus();
+            return true;
+        }
+
+        ApplyChainBonus();
+        return false;
+    }
+
     private void UpdateSegments()
     {
         if (collectedSegments.Count == 0)

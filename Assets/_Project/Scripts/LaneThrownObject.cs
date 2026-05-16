@@ -61,6 +61,24 @@ public class LaneThrownObject : MonoBehaviour
         }
     }
 
+    public void ResumeOnLane(Vector3 startPosition)
+    {
+        throwStartPosition = startPosition;
+        lanePosition = startPosition;
+        throwProgress = 0f;
+        movementState = MovementState.OnLane;
+        shredderTargetPosition = Vector3.zero;
+        transform.position = startPosition;
+
+        if (body != null)
+        {
+            body.linearVelocity = Vector3.zero;
+            body.angularVelocity = Vector3.zero;
+            body.isKinematic = true;
+            body.position = startPosition;
+        }
+    }
+
     private void Update()
     {
         if (movementState == MovementState.Throwing)
