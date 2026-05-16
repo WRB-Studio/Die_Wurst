@@ -93,7 +93,7 @@ public class ChefThrowSpawner : MonoBehaviour
 
         Transform currentThrowOrigin = GetThrowOrigin();
         Vector3 spawnPosition = currentThrowOrigin.position;
-        Quaternion spawnRotation = currentThrowOrigin.rotation;
+        Quaternion spawnRotation = prefab.transform.rotation;
         GameObject instance = Instantiate(prefab);
         instance.transform.SetPositionAndRotation(spawnPosition, spawnRotation);
         Vector3 targetPosition = GetTargetPosition(laneTarget);

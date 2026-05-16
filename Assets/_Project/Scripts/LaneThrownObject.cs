@@ -31,9 +31,9 @@ public class LaneThrownObject : MonoBehaviour
 
         if (body != null)
         {
-            body.isKinematic = true;
             body.linearVelocity = Vector3.zero;
             body.angularVelocity = Vector3.zero;
+            body.isKinematic = true;
         }
     }
 
@@ -72,8 +72,7 @@ public class LaneThrownObject : MonoBehaviour
 
         if (body != null)
         {
-            body.linearVelocity = Vector3.zero;
-            body.angularVelocity = Vector3.zero;
+            body.position = lanePosition;
         }
     }
 
