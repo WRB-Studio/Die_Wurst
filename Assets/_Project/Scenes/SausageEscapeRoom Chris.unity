@@ -1829,6 +1829,7 @@ MonoBehaviour:
   - {fileID: 1605467723}
   - {fileID: 522339043}
   startLaneIndex: 0
+  laneYOffset: 0
   forwardResistanceCurve:
     serializedVersion: 2
     m_Curve:
@@ -2605,6 +2606,9 @@ MonoBehaviour:
   throwArcHeight: 2
   laneMoveSpeed: 3
   destroyAtX: -20
+  shredderPullDistance: 0.4
+  shredderDropDistance: 2.5
+  shredderFallSpeed: 5
   drawDebugGizmos: 1
   logThrowSpawn: 0
 --- !u!1 &1605467722
