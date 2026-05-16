@@ -23,6 +23,11 @@ public class ChefThrowSpawner : MonoBehaviour
     [SerializeField] private float laneMoveSpeed = 3f;
     [SerializeField] private float destroyAtX = -20f;
 
+    [Header("Shredder")]
+    [SerializeField] private float shredderPullDistance = 0.4f;
+    [SerializeField] private float shredderDropDistance = 2.5f;
+    [SerializeField] private float shredderFallSpeed = 5f;
+
     [Header("Debug")]
     [SerializeField] private bool drawDebugGizmos = true;
     [SerializeField] private bool logThrowSpawn = false;
@@ -93,7 +98,7 @@ public class ChefThrowSpawner : MonoBehaviour
 
         Transform currentThrowOrigin = GetThrowOrigin();
         Vector3 spawnPosition = currentThrowOrigin.position;
-        Quaternion spawnRotation = currentThrowOrigin.rotation;
+        Quaternion spawnRotation = prefab.transform.rotation;
         GameObject instance = Instantiate(prefab);
         instance.transform.SetPositionAndRotation(spawnPosition, spawnRotation);
         Vector3 targetPosition = GetTargetPosition(laneTarget);
@@ -104,7 +109,16 @@ public class ChefThrowSpawner : MonoBehaviour
             laneThrownObject = instance.AddComponent<LaneThrownObject>();
         }
 
-        laneThrownObject.Initialize(spawnPosition, targetPosition, throwDuration, throwArcHeight, laneMoveSpeed, destroyAtX);
+        laneThrownObject.Initialize(
+            spawnPosition,
+            targetPosition,
+            throwDuration,
+            throwArcHeight,
+            laneMoveSpeed,
+            destroyAtX,
+            shredderPullDistance,
+            shredderDropDistance,
+            shredderFallSpeed);
 
         if (logThrowSpawn)
         {

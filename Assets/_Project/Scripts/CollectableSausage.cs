@@ -3,6 +3,8 @@ using UnityEngine;
 public class CollectableSausage : MonoBehaviour
 {
     [SerializeField] private bool disableColliderOnCollect = true;
+    [SerializeField] private bool forceTriggerCollider = true;
+    [SerializeField] private bool addKinematicRigidbodyIfMissing = true;
 
     private Collider cachedCollider;
     private Rigidbody cachedRigidbody;
@@ -14,16 +16,47 @@ public class CollectableSausage : MonoBehaviour
         cachedCollider = GetComponent<Collider>();
         cachedRigidbody = GetComponent<Rigidbody>();
         laneThrownObject = GetComponent<LaneThrownObject>();
+
+        EnsureTriggerSetup();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (isCollected)
+        TryCollect(other);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        TryCollect(collision.collider);
+    }
+
+    private void EnsureTriggerSetup()
+    {
+        if (cachedCollider != null && forceTriggerCollider)
+        {
+            cachedCollider.isTrigger = true;
+        }
+
+        if (cachedRigidbody == null && addKinematicRigidbodyIfMissing)
+        {
+            cachedRigidbody = gameObject.AddComponent<Rigidbody>();
+        }
+
+        if (cachedRigidbody != null)
+        {
+            cachedRigidbody.isKinematic = true;
+            cachedRigidbody.useGravity = false;
+        }
+    }
+
+    private void TryCollect(Collider other)
+    {
+        if (isCollected || other == null)
         {
             return;
         }
 
-        SausageChainController chainController = other.GetComponentInParent<SausageChainController>();
+        SausageChainController chainController = GetOrCreateChainController(other);
 
         if (chainController == null)
         {
@@ -39,9 +72,9 @@ public class CollectableSausage : MonoBehaviour
 
         if (cachedRigidbody != null)
         {
-            cachedRigidbody.isKinematic = true;
             cachedRigidbody.linearVelocity = Vector3.zero;
             cachedRigidbody.angularVelocity = Vector3.zero;
+            cachedRigidbody.isKinematic = true;
         }
 
         if (laneThrownObject != null)
@@ -50,5 +83,31 @@ public class CollectableSausage : MonoBehaviour
         }
 
         chainController.AddSegment(transform);
+    }
+
+    private SausageChainController GetOrCreateChainController(Collider other)
+    {
+        SausageChainController chainController = other.GetComponentInParent<SausageChainController>();
+
+        if (chainController != null)
+        {
+            return chainController;
+        }
+
+        SausageMovement sausageMovement = other.GetComponentInParent<SausageMovement>();
+
+        if (sausageMovement == null)
+        {
+            return null;
+        }
+
+        chainController = sausageMovement.GetComponent<SausageChainController>();
+
+        if (chainController == null)
+        {
+            chainController = sausageMovement.gameObject.AddComponent<SausageChainController>();
+        }
+
+        return chainController;
     }
 }
