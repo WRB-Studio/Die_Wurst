@@ -16,8 +16,8 @@ public class ChefThrowSpawner : MonoBehaviour
     [SerializeField] private float minTargetXOffset = -1f;
     [SerializeField] private float maxTargetXOffset = 1f;
     [SerializeField] private float targetYOffset = 0f;
-    [SerializeField] private float throwHeightOffset = 1.5f;
     [SerializeField] private float throwDuration = 0.45f;
+    [SerializeField] private float throwArcHeight = 2f;
 
     [Header("Conveyor")]
     [SerializeField] private float laneMoveSpeed = 3f;
@@ -25,6 +25,7 @@ public class ChefThrowSpawner : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] private bool drawDebugGizmos = true;
+    [SerializeField] private bool logThrowSpawn = false;
 
     private float throwTimer;
     private bool wasWaitingLastFrame;
@@ -34,11 +35,6 @@ public class ChefThrowSpawner : MonoBehaviour
         if (chefPatrol == null)
         {
             chefPatrol = GetComponent<ChefPatrol>();
-        }
-
-        if (throwOrigin == null)
-        {
-            throwOrigin = transform;
         }
     }
 
@@ -95,8 +91,11 @@ public class ChefThrowSpawner : MonoBehaviour
             return;
         }
 
-        Vector3 spawnPosition = throwOrigin.position;
-        GameObject instance = Instantiate(prefab, spawnPosition, prefab.transform.rotation);
+        Transform currentThrowOrigin = GetThrowOrigin();
+        Vector3 spawnPosition = currentThrowOrigin.position;
+        Quaternion spawnRotation = currentThrowOrigin.rotation;
+        GameObject instance = Instantiate(prefab);
+        instance.transform.SetPositionAndRotation(spawnPosition, spawnRotation);
         Vector3 targetPosition = GetTargetPosition(laneTarget);
         LaneThrownObject laneThrownObject = instance.GetComponent<LaneThrownObject>();
 
@@ -105,16 +104,12 @@ public class ChefThrowSpawner : MonoBehaviour
             laneThrownObject = instance.AddComponent<LaneThrownObject>();
         }
 
-        laneThrownObject.Initialize(targetPosition, throwDuration, laneMoveSpeed, destroyAtX);
+        laneThrownObject.Initialize(spawnPosition, targetPosition, throwDuration, throwArcHeight, laneMoveSpeed, destroyAtX);
 
-        Rigidbody body = instance.GetComponent<Rigidbody>();
-
-        if (body == null)
+        if (logThrowSpawn)
         {
-            return;
+            Debug.Log($"Chef throw spawn from {spawnPosition} to {targetPosition}", this);
         }
-
-        body.linearVelocity = CalculateThrowVelocity(spawnPosition, targetPosition);
     }
 
     private Vector3 GetTargetPosition(Transform laneTarget)
@@ -123,18 +118,6 @@ public class ChefThrowSpawner : MonoBehaviour
         targetPosition.x += Random.Range(minTargetXOffset, maxTargetXOffset);
         targetPosition.y += targetYOffset;
         return targetPosition;
-    }
-
-    private Vector3 CalculateThrowVelocity(Vector3 startPosition, Vector3 targetPosition)
-    {
-        Vector3 flatDelta = targetPosition - startPosition;
-        flatDelta.y = 0f;
-
-        float safeDuration = Mathf.Max(throwDuration, 0.05f);
-        Vector3 horizontalVelocity = flatDelta / safeDuration;
-        float verticalVelocity = ((targetPosition.y + throwHeightOffset) - startPosition.y) / safeDuration;
-
-        return new Vector3(horizontalVelocity.x, verticalVelocity, horizontalVelocity.z);
     }
 
     private GameObject GetRandomPrefab()
@@ -154,9 +137,26 @@ public class ChefThrowSpawner : MonoBehaviour
         throwTimer = Random.Range(minThrowInterval, maxThrowInterval);
     }
 
+    private Transform GetThrowOrigin()
+    {
+        if (throwOrigin != null)
+        {
+            return throwOrigin;
+        }
+
+        if (chefPatrol != null)
+        {
+            return chefPatrol.transform;
+        }
+
+        return transform;
+    }
+
     private void OnDrawGizmosSelected()
     {
-        if (!drawDebugGizmos || throwOrigin == null || laneTargets == null)
+        Transform currentThrowOrigin = GetThrowOrigin();
+
+        if (!drawDebugGizmos || currentThrowOrigin == null || laneTargets == null)
         {
             return;
         }
@@ -170,7 +170,7 @@ public class ChefThrowSpawner : MonoBehaviour
                 continue;
             }
 
-            Gizmos.DrawLine(throwOrigin.position, GetTargetPosition(laneTarget));
+            Gizmos.DrawLine(currentThrowOrigin.position, laneTarget.position);
         }
     }
 }
