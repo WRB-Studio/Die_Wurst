@@ -2706,6 +2706,7 @@ MonoBehaviour:
   - {fileID: 1612910926}
   throwablePrefabs:
   - {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
+  - {fileID: 3294577712733071579, guid: b69841faaae5e0b46b3fb79c94aba820, type: 3}
   minThrowInterval: 0.4
   maxThrowInterval: 1.2
   minTargetXOffset: 4
