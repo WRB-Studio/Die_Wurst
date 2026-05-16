@@ -17,6 +17,7 @@ public class SausageChainController : MonoBehaviour
     [SerializeField] private float followSmoothness = 12f;
     [SerializeField] private float joinDuration = 0.25f;
     [SerializeField] private float joinArcHeight = 0.35f;
+    [SerializeField] private float grinderDropX = -3.5f;
     [SerializeField] private float chainBonusPerSegment = 0.12f;
     [SerializeField] private Transform segmentParent;
 
@@ -131,13 +132,18 @@ public class SausageChainController : MonoBehaviour
             }
 
             segment.position = Vector3.MoveTowards(segment.position, targetPosition, followSmoothness * Time.deltaTime);
+
+            if (segment.position.x <= grinderDropX)
+            {
+                ReleaseSegmentAt(i);
+                i--;
+            }
         }
     }
 
     private Vector3 GetTargetPositionBehindLeader(Transform leader, Vector3 currentSegmentPosition)
     {
         Vector3 direction = currentSegmentPosition - leader.position;
-        float currentY = currentSegmentPosition.y;
         direction.y = 0f;
 
         if (direction.sqrMagnitude < 0.0001f)
@@ -152,7 +158,7 @@ public class SausageChainController : MonoBehaviour
         }
 
         Vector3 targetPosition = leader.position + direction.normalized * segmentSpacing;
-        targetPosition.y = currentY;
+        targetPosition.y = leader.position.y;
         return targetPosition;
     }
 
@@ -186,6 +192,32 @@ public class SausageChainController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void ReleaseSegmentAt(int index)
+    {
+        if (index < 0 || index >= collectedSegments.Count)
+        {
+            return;
+        }
+
+        ChainSegment segmentData = collectedSegments[index];
+        collectedSegments.RemoveAt(index);
+
+        if (segmentData.Transform == null)
+        {
+            ApplyChainBonus();
+            return;
+        }
+
+        CollectableSausage collectableSausage = segmentData.Transform.GetComponent<CollectableSausage>();
+
+        if (collectableSausage != null)
+        {
+            collectableSausage.ReleaseFromChain(transform);
+        }
+
+        ApplyChainBonus();
     }
 
     private void ApplyChainBonus()
