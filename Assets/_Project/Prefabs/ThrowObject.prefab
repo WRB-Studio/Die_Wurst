@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 9007282429421806048}
   - component: {fileID: 3389660935198157742}
   - component: {fileID: -8822829572306406463}
+  - component: {fileID: -7021142396292403022}
+  - component: {fileID: -1509660989632063544}
   m_Layer: 0
   m_Name: ThrowObject
   m_TagString: Untagged
@@ -127,3 +129,46 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LaneThrownObject
   conveyorSpeed: 3
   destroyX: -20
+  shredderPullDistance: 0.4
+  shredderDropDistance: 2.5
+  shredderFallSpeed: 5
+--- !u!54 &-7021142396292403022
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3294577712733071579}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &-1509660989632063544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3294577712733071579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b4304be7cc58f545acda48744a8b0bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyThrownObject
+  consumeOnHit: 1

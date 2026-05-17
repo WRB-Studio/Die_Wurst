@@ -5,7 +5,8 @@ public class SausageMovement : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 4f;
-    [SerializeField] private float laneChangeSpeed = 6f;
+    [SerializeField] private float laneJumpSpeed = 6f;
+    [SerializeField] private float laneJumpHeight = 0.75f;
 
     [Header("X Limits")]
     [SerializeField] private float minX = -6f;
@@ -14,6 +15,7 @@ public class SausageMovement : MonoBehaviour
     [Header("Lane Positions")]
     [SerializeField] private Transform[] lanePoints;
     [SerializeField] private int startLaneIndex = 1;
+    [SerializeField] private float laneYOffset = 0f;
 
     [Header("Window Resistance")]
     [SerializeField] private AnimationCurve forwardResistanceCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0.2f);
@@ -26,13 +28,21 @@ public class SausageMovement : MonoBehaviour
     private InputAction moveAction;
     private Vector2 moveInput;
     private int currentLaneIndex;
-    private float targetLaneZ;
+    private int pendingLaneIndex;
     private bool laneInputLocked;
+    private bool isLaneJumping;
+    private float laneJumpStartY;
+    private float laneJumpTargetY;
+    private float laneJumpStartZ;
+    private float laneJumpTargetZ;
+    private float laneJumpDuration;
+    private float laneJumpElapsed;
 
     private void Awake()
     {
         currentLaneIndex = GetValidLaneIndex(startLaneIndex);
-        targetLaneZ = GetLanePosition(currentLaneIndex);
+        pendingLaneIndex = currentLaneIndex;
+        SnapToCurrentLane();
     }
 
     private void OnEnable()
@@ -84,19 +94,24 @@ public class SausageMovement : MonoBehaviour
             return;
         }
 
+        if (isLaneJumping)
+        {
+            return;
+        }
+
         laneInputLocked = true;
 
         if (moveInput.y > 0.5f)
         {
-            SetLane(currentLaneIndex + 1);
+            StartLaneJump(currentLaneIndex + 1);
         }
         else if (moveInput.y < -0.5f)
         {
-            SetLane(currentLaneIndex - 1);
+            StartLaneJump(currentLaneIndex - 1);
         }
     }
 
-    private void SetLane(int newLaneIndex)
+    private void StartLaneJump(int newLaneIndex)
     {
         int clampedLaneIndex = GetValidLaneIndex(newLaneIndex);
 
@@ -105,8 +120,26 @@ public class SausageMovement : MonoBehaviour
             return;
         }
 
-        currentLaneIndex = clampedLaneIndex;
-        targetLaneZ = GetLanePosition(currentLaneIndex);
+        pendingLaneIndex = clampedLaneIndex;
+        laneJumpStartY = transform.position.y;
+        laneJumpTargetY = GetLaneHeightWithOffset(pendingLaneIndex);
+        laneJumpStartZ = transform.position.z;
+        laneJumpTargetZ = GetLanePosition(pendingLaneIndex);
+
+        float laneDistance = Vector2.Distance(
+            new Vector2(laneJumpStartZ, laneJumpStartY),
+            new Vector2(laneJumpTargetZ, laneJumpTargetY)
+        );
+
+        if (laneDistance < 0.001f)
+        {
+            CompleteLaneJump();
+            return;
+        }
+
+        laneJumpDuration = laneDistance / Mathf.Max(laneJumpSpeed, 0.01f);
+        laneJumpElapsed = 0f;
+        isLaneJumping = true;
     }
 
     private void MoveHorizontally()
@@ -123,7 +156,44 @@ public class SausageMovement : MonoBehaviour
     private void MoveToLane()
     {
         Vector3 position = transform.position;
-        position.z = Mathf.MoveTowards(position.z, targetLaneZ, laneChangeSpeed * Time.deltaTime);
+
+        if (!isLaneJumping)
+        {
+            position.z = GetLanePosition(currentLaneIndex);
+            position.y = GetLaneHeightWithOffset(currentLaneIndex);
+            transform.position = position;
+            return;
+        }
+
+        laneJumpElapsed += Time.deltaTime;
+
+        float progress = Mathf.Clamp01(laneJumpElapsed / Mathf.Max(laneJumpDuration, 0.01f));
+        position.z = Mathf.Lerp(laneJumpStartZ, laneJumpTargetZ, progress);
+        position.y = Mathf.Lerp(laneJumpStartY, laneJumpTargetY, progress) + 4f * laneJumpHeight * progress * (1f - progress);
+        transform.position = position;
+
+        if (progress >= 1f)
+        {
+            CompleteLaneJump();
+        }
+    }
+
+    private void CompleteLaneJump()
+    {
+        currentLaneIndex = pendingLaneIndex;
+        isLaneJumping = false;
+
+        Vector3 position = transform.position;
+        position.z = GetLanePosition(currentLaneIndex);
+        position.y = GetLaneHeightWithOffset(currentLaneIndex);
+        transform.position = position;
+    }
+
+    private void SnapToCurrentLane()
+    {
+        Vector3 position = transform.position;
+        position.z = GetLanePosition(currentLaneIndex);
+        position.y = GetLaneHeightWithOffset(currentLaneIndex);
         transform.position = position;
     }
 
@@ -157,6 +227,22 @@ public class SausageMovement : MonoBehaviour
         return lanePoint != null ? lanePoint.position.z : transform.position.z;
     }
 
+    private float GetLaneHeight(int laneIndex)
+    {
+        if (lanePoints == null || lanePoints.Length == 0)
+        {
+            return transform.position.y;
+        }
+
+        Transform lanePoint = lanePoints[GetValidLaneIndex(laneIndex)];
+        return lanePoint != null ? lanePoint.position.y : transform.position.y;
+    }
+
+    private float GetLaneHeightWithOffset(int laneIndex)
+    {
+        return GetLaneHeight(laneIndex) + laneYOffset;
+    }
+
     private void OnDrawGizmosSelected()
     {
         if (!drawDebugGizmos)
@@ -184,9 +270,15 @@ public class SausageMovement : MonoBehaviour
             }
 
             float laneZ = lanePoint.position.z;
-            Vector3 laneStart = new Vector3(minX, transform.position.y, laneZ);
-            Vector3 laneEnd = new Vector3(maxX, transform.position.y, laneZ);
+            float laneY = lanePoint.position.y;
+            Vector3 laneStart = new Vector3(minX, laneY, laneZ);
+            Vector3 laneEnd = new Vector3(maxX, laneY, laneZ);
             Gizmos.DrawLine(laneStart, laneEnd);
         }
+    }
+
+    public void SetChainBonus(float bonus)
+    {
+        chainBonus = Mathf.Clamp(bonus, 0f, maxChainBonus);
     }
 }
