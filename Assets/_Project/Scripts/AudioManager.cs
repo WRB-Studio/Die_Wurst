@@ -42,6 +42,14 @@ public class AudioManager : MonoBehaviour
             PlayMusic(startMusic);
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+
     private void EnsureAudioSources()
     {
         if (musicSource == null)
@@ -59,6 +67,8 @@ public class AudioManager : MonoBehaviour
 
     public void PlayMusic(AudioClip clip, bool loop = true)
     {
+        EnsureAudioSources();
+
         if (musicSource.isPlaying && musicSource.clip == clip) return;
         musicSource.Stop();
         musicSource.clip = clip;
@@ -66,9 +76,23 @@ public class AudioManager : MonoBehaviour
         musicSource.Play();
     }
 
-    public void StopMusic() => musicSource.Stop();
-    public void PauseMusic() => musicSource.Pause();
-    public void ResumeMusic() => musicSource.UnPause();
+    public void StopMusic()
+    {
+        EnsureAudioSources();
+        musicSource.Stop();
+    }
+
+    public void PauseMusic()
+    {
+        EnsureAudioSources();
+        musicSource.Pause();
+    }
+
+    public void ResumeMusic()
+    {
+        EnsureAudioSources();
+        musicSource.UnPause();
+    }
 
     // --- SFX per Index ---
 
@@ -110,6 +134,8 @@ public class AudioManager : MonoBehaviour
     
     public void PlaySFXBlocking(string clipName, float volume = 1f)
     {
+        EnsureAudioSources();
+
         AudioClip clip = System.Array.Find(soundClips, c => c.name == clipName);
         if (clip == null)
         {
@@ -137,8 +163,12 @@ public class AudioManager : MonoBehaviour
     {
         if (_activeLoops.TryGetValue(clipName, out AudioSource source))
         {
-            source.Stop();
-            Destroy(source);
+            if (source != null)
+            {
+                source.Stop();
+                Destroy(source);
+            }
+
             _activeLoops.Remove(clipName);
         }
         else
@@ -152,6 +182,11 @@ public class AudioManager : MonoBehaviour
     {
         foreach (var source in _activeLoops.Values)
         {
+            if (source == null)
+            {
+                continue;
+            }
+
             source.Stop();
             Destroy(source);
         }
@@ -160,11 +195,17 @@ public class AudioManager : MonoBehaviour
  
     // --- SFX direkt stoppen (einmalige Sounds) ---
  
-    public void StopSFX() => sfxSource.Stop();
+    public void StopSFX()
+    {
+        EnsureAudioSources();
+        sfxSource.Stop();
+    }
  
     // --- Interner Helper ---
     private void PlaySFXClip(AudioClip clip, bool loop, float volume) // 1f = maxLautstärke
     {
+        EnsureAudioSources();
+
         float finalVolume = sfxVolume * volume; // globale Lautstärke * lokale Lautstärke
 
         if (loop)
@@ -192,12 +233,14 @@ public class AudioManager : MonoBehaviour
 
     public void SetMusicVolume(float value)
     {
+        EnsureAudioSources();
         musicVolume = Mathf.Clamp01(value);
         musicSource.volume = musicVolume;
     }
 
     public void SetSFXVolume(float value)
     {
+        EnsureAudioSources();
         sfxVolume = Mathf.Clamp01(value);
         sfxSource.volume = sfxVolume;
     }

@@ -8,6 +8,9 @@ using TMPro;
 
 public class GameHandler : MonoBehaviour
 {
+    private const string CarryOverScoreKey = "CarryOverScore";
+    private const int EscapeRoomSceneBuildIndex = 1;
+
     public static GameHandler Instance { get; private set; }
 
     private static bool skipMainMenuOnNextLoad;
@@ -32,6 +35,14 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private TMP_Text scoreValueText;
     [SerializeField] private TMP_Text timeValueText;
 
+    [Header("Fallback Game Over UI")]
+    [SerializeField] private Sprite fallbackGameOverSprite;
+    [SerializeField] private Sprite fallbackReplaySprite;
+    [SerializeField] private Sprite fallbackMainMenuSprite;
+    [SerializeField] private Sprite fallbackExitSprite;
+    [SerializeField] private Sprite fallbackScoreSprite;
+    [SerializeField] private Sprite fallbackTimeSprite;
+
     [Header("Gameplay")]
     [SerializeField] private SausageChainController playerChain;
     [SerializeField] private bool showMainMenuOnStart = true;
@@ -48,6 +59,7 @@ public class GameHandler : MonoBehaviour
     private float elapsedGameTime;
     private int collectedSausageCount;
     private int hitCount;
+    private int baseScore;
     private int currentScore;
 
     private void Awake()
@@ -145,6 +157,22 @@ public class GameHandler : MonoBehaviour
         TriggerGameOver();
     }
 
+    public void ShowGameOver()
+    {
+        if (isGameOver)
+        {
+            return;
+        }
+
+        TriggerGameOver();
+    }
+
+    public void SaveScoreForNextScene()
+    {
+        PlayerPrefs.SetInt(CarryOverScoreKey, currentScore);
+        PlayerPrefs.Save();
+    }
+
     public void RegisterCollectedSausage()
     {
         if (isGameOver)
@@ -191,11 +219,29 @@ public class GameHandler : MonoBehaviour
     public void ReplayGame()
     {
         skipMainMenuOnNextLoad = true;
-        RestartScene();
+        PlayerPrefs.DeleteKey(CarryOverScoreKey);
+        ResumeGameTime();
+
+        int activeBuildIndex = SceneManager.GetActiveScene().buildIndex;
+
+        if (activeBuildIndex == EscapeRoomSceneBuildIndex)
+        {
+            SceneManager.LoadScene(activeBuildIndex);
+            return;
+        }
+
+        SceneManager.LoadScene(EscapeRoomSceneBuildIndex);
     }
 
     public void ReturnToMainMenu()
     {
+        if (mainMenu == null)
+        {
+            ResumeGameTime();
+            SceneManager.LoadScene(0);
+            return;
+        }
+
         isPaused = false;
         isGameOver = false;
         OpenMainMenu();
@@ -256,6 +302,7 @@ public class GameHandler : MonoBehaviour
     {
         isGameOver = true;
         isPaused = false;
+        EnsureFallbackGameOverUi();
         SetPauseMenuVisible(true);
         UpdatePauseMenuState(showPause: false, showGameOver: true);
         PauseGameTime();
@@ -307,6 +354,124 @@ public class GameHandler : MonoBehaviour
         }
     }
 
+    private void EnsureFallbackGameOverUi()
+    {
+        if (pauseMenu != null && gameOverImage != null)
+        {
+            return;
+        }
+
+        GameObject canvasObject = new GameObject("Game Over Canvas");
+        Canvas canvas = canvasObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+        canvasObject.AddComponent<GraphicRaycaster>();
+
+        pauseMenu = new GameObject("Game Over Menu");
+        pauseMenu.transform.SetParent(canvasObject.transform, false);
+
+        RectTransform menuRect = pauseMenu.AddComponent<RectTransform>();
+        menuRect.anchorMin = new Vector2(0.5f, 0.5f);
+        menuRect.anchorMax = new Vector2(0.5f, 0.5f);
+        menuRect.pivot = new Vector2(0.5f, 0.5f);
+        menuRect.anchoredPosition = new Vector2(0.5f, 0.5f);
+        menuRect.sizeDelta = new Vector2(1920f, 1080f);
+
+        Image background = pauseMenu.AddComponent<Image>();
+        background.color = new Color(0f, 0f, 0f, 0.75f);
+
+        if (fallbackGameOverSprite == null)
+        {
+            gameOverImage = CreateTextObject("Game Over Image", pauseMenu.transform, "GAME OVER", 54, Vector2.zero, new Vector2(650f, 160f));
+            return;
+        }
+
+        gameOverImage = CreateImageObject("Game Over Image", pauseMenu.transform, fallbackGameOverSprite, new Vector2(-0.50002444f, 281f), new Vector2(1000f, 633f));
+        replayButton = CreateImageButton("Replay Button", pauseMenu.transform, fallbackReplaySprite, Vector2.zero, new Vector2(552f, 123f), ReplayGame);
+        pauseMainMenuButton = CreateImageButton("Main Menu Button", pauseMenu.transform, fallbackMainMenuSprite, new Vector2(0f, -175f), new Vector2(633f, 109f), ReturnToMainMenu);
+        pauseExitButton = CreateImageButton("Exit Button", pauseMenu.transform, fallbackExitSprite, new Vector2(0f, -350f), new Vector2(588f, 114f), QuitGame);
+        scoreImage = CreateImageObject("Score Image", pauseMenu.transform, fallbackScoreSprite, new Vector2(540f, 79f), new Vector2(600f, 157f));
+        timeImage = CreateImageObject("Time Image", pauseMenu.transform, fallbackTimeSprite, new Vector2(626f, -244f), new Vector2(469.5f, 114.3411f));
+        scoreValueText = CreateTmpText("Score Value", pauseMenu.transform, new Vector2(594f, -14f), new Vector2(498.13f, 108.5f), 70f);
+        timeValueText = CreateTmpText("Time Value", pauseMenu.transform, new Vector2(700f, -324f), new Vector2(498.13f, 108.5f), 70f);
+        UpdateStatsUI();
+    }
+
+    private GameObject CreateImageObject(string name, Transform parent, Sprite sprite, Vector2 position, Vector2 size)
+    {
+        GameObject imageObject = new GameObject(name);
+        imageObject.transform.SetParent(parent, false);
+
+        Image image = imageObject.AddComponent<Image>();
+        image.sprite = sprite;
+        image.color = sprite != null ? Color.white : Color.clear;
+        image.preserveAspect = false;
+
+        RectTransform rectTransform = imageObject.GetComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = position;
+        rectTransform.sizeDelta = size;
+
+        return imageObject;
+    }
+
+    private Button CreateImageButton(string name, Transform parent, Sprite sprite, Vector2 position, Vector2 size, UnityEngine.Events.UnityAction action)
+    {
+        GameObject buttonObject = CreateImageObject(name, parent, sprite, position, size);
+        Button button = buttonObject.AddComponent<Button>();
+        button.targetGraphic = buttonObject.GetComponent<Image>();
+        button.onClick.AddListener(action);
+        return button;
+    }
+
+    private GameObject CreateTextObject(string name, Transform parent, string text, int fontSize, Vector2 position, Vector2 size)
+    {
+        GameObject textObject = new GameObject(name);
+        textObject.transform.SetParent(parent, false);
+
+        Text textComponent = textObject.AddComponent<Text>();
+        textComponent.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        textComponent.text = text;
+        textComponent.fontSize = fontSize;
+        textComponent.alignment = TextAnchor.MiddleCenter;
+        textComponent.color = Color.white;
+
+        RectTransform rectTransform = textObject.GetComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = position;
+        rectTransform.sizeDelta = size;
+
+        return textObject;
+    }
+
+    private TMP_Text CreateTmpText(string name, Transform parent, Vector2 position, Vector2 size, float fontSize)
+    {
+        GameObject textObject = new GameObject(name);
+        textObject.transform.SetParent(parent, false);
+
+        TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
+        text.fontSize = fontSize;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.cyan;
+        text.fontStyle = FontStyles.Bold;
+
+        RectTransform rectTransform = textObject.GetComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = position;
+        rectTransform.sizeDelta = size;
+
+        return text;
+    }
+
     private void UpdatePauseMenuState(bool showPause, bool showGameOver)
     {
         if (resumeButton != null)
@@ -353,13 +518,21 @@ public class GameHandler : MonoBehaviour
     private void PauseGameTime()
     {
         Time.timeScale = 0f;
-        AudioManager.Instance?.PauseMusic();
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PauseMusic();
+        }
     }
 
     private void ResumeGameTime()
     {
         Time.timeScale = 1f;
-        AudioManager.Instance?.ResumeMusic();
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.ResumeMusic();
+        }
     }
 
     private bool IsGameplayRunning()
@@ -372,14 +545,16 @@ public class GameHandler : MonoBehaviour
         elapsedGameTime = 0f;
         collectedSausageCount = 0;
         hitCount = 0;
-        currentScore = 0;
+        baseScore = PlayerPrefs.GetInt(CarryOverScoreKey, 0);
+        PlayerPrefs.DeleteKey(CarryOverScoreKey);
+        currentScore = baseScore;
         UpdateStatsUI();
     }
 
     private void RecalculateScore()
     {
         int timeScore = Mathf.FloorToInt(elapsedGameTime) * timeScorePerSecond;
-        currentScore = Mathf.Max(0, collectedSausageCount * collectScore + timeScore - hitCount * hitPenalty);
+        currentScore = Mathf.Max(0, baseScore + collectedSausageCount * collectScore + timeScore - hitCount * hitPenalty);
         UpdateStatsUI();
     }
 

@@ -129,7 +129,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SurvivalBird
   speed: 7
-  destroyDistance: 18
+  cameraDestroyPadding: 0.2
 --- !u!54 &3246948696963584593
 Rigidbody:
   m_ObjectHideFlags: 0

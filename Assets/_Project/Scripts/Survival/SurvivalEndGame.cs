@@ -33,11 +33,12 @@ public class SurvivalEndGame : MonoBehaviour
     [SerializeField] private float landingY = -5f;
 
     [Header("Birds")]
-    [SerializeField] private float minBirdInterval = 0.8f;
-    [SerializeField] private float maxBirdInterval = 1.6f;
+    [SerializeField] private float minBirdInterval = 0.45f;
+    [SerializeField] private float maxBirdInterval = 0.9f;
     [SerializeField] private float birdSpeed = 7f;
     [SerializeField] private float birdSpawnOffset = 1f;
     [SerializeField] private float birdVerticalRange = 2.5f;
+    [SerializeField] private float minBirdSpawnY = -3.5f;
     [SerializeField] private Sprite birdFrameA;
     [SerializeField] private Sprite birdFrameB;
     [SerializeField] private Vector3 birdSpriteScale = new Vector3(1.4f, 1.4f, 1f);
@@ -69,7 +70,21 @@ public class SurvivalEndGame : MonoBehaviour
 
     public void StealSausage(SurvivalSausage sausage)
     {
-        if (sausage == null || !sausages.Remove(sausage))
+        if (sausage == null)
+        {
+            return;
+        }
+
+        if (sausages.Count > 0 && sausage == sausages[0])
+        {
+            isFinished = true;
+            UpdateText("Game Over");
+            EnsureGameHandler();
+            GameHandler.Instance?.ShowGameOver();
+            return;
+        }
+
+        if (!sausages.Remove(sausage))
         {
             return;
         }
@@ -196,7 +211,7 @@ public class SurvivalEndGame : MonoBehaviour
 
         bool fromLeft = Random.value < 0.5f;
         float spawnX = GetHorizontalCameraEdge(fromLeft) + (fromLeft ? -birdSpawnOffset : birdSpawnOffset);
-        float y = chainRoot.position.y + Random.Range(-birdVerticalRange, birdVerticalRange);
+        float y = Mathf.Max(minBirdSpawnY, chainRoot.position.y + Random.Range(-birdVerticalRange, birdVerticalRange));
         Vector3 spawnPosition = new Vector3(spawnX, y, 0f);
         Vector3 direction = fromLeft ? Vector3.right : Vector3.left;
 
@@ -267,6 +282,19 @@ public class SurvivalEndGame : MonoBehaviour
         {
             CreateSimpleUi();
         }
+
+        EnsureGameHandler();
+    }
+
+    private void EnsureGameHandler()
+    {
+        if (GameHandler.Instance != null)
+        {
+            return;
+        }
+
+        GameObject gameHandlerObject = new GameObject("GameHandler");
+        gameHandlerObject.AddComponent<GameHandler>();
     }
 
     private void EnsureCameraAndWorld()

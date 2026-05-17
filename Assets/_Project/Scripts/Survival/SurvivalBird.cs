@@ -3,7 +3,7 @@ using UnityEngine;
 public class SurvivalBird : MonoBehaviour
 {
     [SerializeField] private float speed = 7f;
-    [SerializeField] private float destroyDistance = 18f;
+    [SerializeField] private float cameraDestroyPadding = 0.2f;
     [SerializeField] private float frameTime = 0.16f;
 
     private SurvivalEndGame endGame;
@@ -11,7 +11,6 @@ public class SurvivalBird : MonoBehaviour
     private Sprite frameA;
     private Sprite frameB;
     private Vector3 direction;
-    private Vector3 startPosition;
     private float frameTimer;
     private bool showFrameB;
     private bool hasSnatched;
@@ -21,7 +20,6 @@ public class SurvivalBird : MonoBehaviour
         endGame = owner;
         direction = flyDirection.normalized;
         speed = flySpeed;
-        startPosition = transform.position;
         frameA = firstFrame;
         frameB = secondFrame;
 
@@ -40,10 +38,27 @@ public class SurvivalBird : MonoBehaviour
 
         UpdateAnimation();
 
-        if (Vector3.Distance(startPosition, transform.position) >= destroyDistance)
+        if (IsOutsideCamera())
         {
             Destroy(gameObject);
         }
+    }
+
+    private bool IsOutsideCamera()
+    {
+        Camera camera = Camera.main;
+
+        if (camera == null)
+        {
+            return false;
+        }
+
+        Vector3 viewportPosition = camera.WorldToViewportPoint(transform.position);
+
+        return viewportPosition.x < -cameraDestroyPadding
+            || viewportPosition.x > 1f + cameraDestroyPadding
+            || viewportPosition.y < -cameraDestroyPadding
+            || viewportPosition.y > 1f + cameraDestroyPadding;
     }
 
     private void UpdateAnimation()
