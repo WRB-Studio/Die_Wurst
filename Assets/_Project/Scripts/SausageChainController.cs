@@ -9,12 +9,15 @@ public class SausageChainController : MonoBehaviour
         public bool IsJoining;
         public Vector3 JoinStartPosition;
         public float JoinElapsed;
+        public Vector3 FollowVelocity;
     }
 
     [Header("Chain")]
     [SerializeField] private float segmentSpacing = 1.1f;
     [SerializeField] private float segmentYOffset = 0f;
     [SerializeField] private float followSmoothness = 12f;
+    [SerializeField] private float laneFollowSmoothness = 0.08f;
+    [SerializeField] private float laneFollowDelayPerSegment = 0.025f;
     [SerializeField] private float joinDuration = 0.25f;
     [SerializeField] private float joinArcHeight = 0.35f;
     [SerializeField] private float grinderDropX = -3.5f;
@@ -124,7 +127,7 @@ public class SausageChainController : MonoBehaviour
             }
 
             Transform leader = i == 0 ? transform : collectedSegments[i - 1].Transform;
-            Vector3 targetPosition = GetTargetPositionBehindLeader(leader, segment.position);
+            Vector3 targetPosition = GetTargetPositionBehindLeader(leader);
             targetPosition.y += segmentYOffset;
 
             if (segmentData.IsJoining)
@@ -133,7 +136,7 @@ public class SausageChainController : MonoBehaviour
                 continue;
             }
 
-            segment.position = Vector3.MoveTowards(segment.position, targetPosition, followSmoothness * Time.deltaTime);
+            segment.position = GetFollowPosition(segmentData, targetPosition, i);
 
             if (segment.position.x <= grinderDropX)
             {
@@ -143,25 +146,26 @@ public class SausageChainController : MonoBehaviour
         }
     }
 
-    private Vector3 GetTargetPositionBehindLeader(Transform leader, Vector3 currentSegmentPosition)
+    private Vector3 GetTargetPositionBehindLeader(Transform leader)
     {
-        Vector3 direction = currentSegmentPosition - leader.position;
-        direction.y = 0f;
-
-        if (direction.sqrMagnitude < 0.0001f)
-        {
-            direction = -leader.forward;
-            direction.y = 0f;
-        }
-
-        if (direction.sqrMagnitude < 0.0001f)
-        {
-            direction = Vector3.left;
-        }
-
-        Vector3 targetPosition = leader.position + direction.normalized * segmentSpacing;
+        Vector3 targetPosition = leader.position + Vector3.left * segmentSpacing;
         targetPosition.y = leader.position.y;
         return targetPosition;
+    }
+
+    private Vector3 GetFollowPosition(ChainSegment segmentData, Vector3 targetPosition, int segmentIndex)
+    {
+        Vector3 currentPosition = segmentData.Transform.position;
+        float horizontalSpeed = Mathf.Max(followSmoothness, 0.01f) * Time.deltaTime;
+        float laneSmoothTime = Mathf.Max(laneFollowSmoothness + laneFollowDelayPerSegment * segmentIndex, 0.01f);
+
+        currentPosition.x = Mathf.MoveTowards(currentPosition.x, targetPosition.x, horizontalSpeed);
+        float nextY = Mathf.SmoothDamp(currentPosition.y, targetPosition.y, ref segmentData.FollowVelocity.y, laneSmoothTime);
+        float nextZ = Mathf.SmoothDamp(currentPosition.z, targetPosition.z, ref segmentData.FollowVelocity.z, laneSmoothTime);
+
+        currentPosition.y = nextY;
+        currentPosition.z = nextZ;
+        return currentPosition;
     }
 
     private void UpdateJoiningSegment(ChainSegment segmentData, Vector3 targetPosition)
