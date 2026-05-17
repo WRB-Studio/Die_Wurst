@@ -57,19 +57,19 @@ public class AudioManager : MonoBehaviour
 
     // --- SFX per Index ---
 
-    public void PlaySFX(int index, bool loop = false)
+    public void PlaySFX(int index, bool loop = false, float volume = 1f)
     {
         if (index < 0 || index >= soundClips.Length)
         {
             Debug.LogWarning($"AudioManager: Index {index} existiert nicht!");
             return;
         }
-        PlaySFXClip(soundClips[index], loop);
+        PlaySFXClip(soundClips[index], loop, volume);
     }
 
     // --- SFX per Name ---
 
-    public void PlaySFX(string clipName, bool loop = false)
+    public void PlaySFX(string clipName, bool loop = false, float volume = 1f)
     {
         AudioClip clip = System.Array.Find(soundClips, c => c.name == clipName);
         if (clip == null)
@@ -78,14 +78,33 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        PlaySFXClip(clip, loop);
+        PlaySFXClip(clip, loop, volume);
+    }
+
+    // --- SFX direkt abspielen, aber nur wenn er nicht schon läuft (für einmalige Sounds) ---
+    
+    public void PlaySFXBlocking(string clipName, float volume = 1f)
+    {
+        AudioClip clip = System.Array.Find(soundClips, c => c.name == clipName);
+        if (clip == null)
+        {
+            Debug.LogWarning($"AudioManager: Clip '{clipName}' nicht gefunden!");
+            return;
+        }
+
+        // Prüfen ob genau dieser Clip gerade läuft
+        if (sfxSource.isPlaying && sfxSource.clip == clip) return;
+
+        sfxSource.clip = clip;
+        sfxSource.volume = sfxVolume * volume;
+        sfxSource.Play();
     }
 
     // --- SFX direkt ---
 
-    public void PlaySFX(AudioClip clip, bool loop = false)
+    public void PlaySFX(AudioClip clip, bool loop = false, float volume = 1f)
     {
-        PlaySFXClip(clip, loop);
+        PlaySFXClip(clip, loop, volume);
     }
 
     // --- Loop stoppen per Name --- 
@@ -102,7 +121,7 @@ public class AudioManager : MonoBehaviour
             Debug.LogWarning($"AudioManager: Kein aktiver Loop '{clipName}' gefunden!");
         }
     }
- 
+
     // --- Alle Loops stoppen ---
     public void StopAllLoops()
     {
@@ -119,32 +138,29 @@ public class AudioManager : MonoBehaviour
     public void StopSFX() => sfxSource.Stop();
  
     // --- Interner Helper ---
- 
-    private void PlaySFXClip(AudioClip clip, bool loop)
+    private void PlaySFXClip(AudioClip clip, bool loop, float volume) // 1f = maxLautstärke
     {
+        float finalVolume = sfxVolume * volume; // globale Lautstärke * lokale Lautstärke
+
         if (loop)
         {
-            // Läuft dieser Clip bereits? Dann nicht nochmal starten
             if (_activeLoops.ContainsKey(clip.name))
             {
                 Debug.LogWarning($"AudioManager: Loop '{clip.name}' läuft bereits!");
                 return;
             }
- 
-            // Neue AudioSource dynamisch erstellen
             AudioSource newSource = gameObject.AddComponent<AudioSource>();
             newSource.clip = clip;
             newSource.loop = true;
-            newSource.volume = sfxVolume;
+            newSource.volume = finalVolume;
             newSource.Play();
- 
             _activeLoops[clip.name] = newSource;
         }
         else
         {
-            sfxSource.PlayOneShot(clip, sfxVolume);
+            sfxSource.PlayOneShot(clip, finalVolume);
         }
-    }
+}
 
 
     // --- Lautstärke ---
