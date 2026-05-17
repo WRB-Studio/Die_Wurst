@@ -37,7 +37,16 @@ public class EnemyThrownObject : MonoBehaviour
         }
 
         hasHit = true;
-        chainController.ReleaseLastSegment();
+        GameHandler gameHandler = GameHandler.Instance;
+
+        if (gameHandler != null)
+        {
+            gameHandler.HandlePlayerHit();
+        }
+        else
+        {
+            chainController.ReleaseLastSegment();
+        }
 
         if (consumeOnHit)
         {
