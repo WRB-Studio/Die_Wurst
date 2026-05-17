@@ -1323,6 +1323,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 723613980}
+  - component: {fileID: 723613981}
   m_Layer: 0
   m_Name: Scripts
   m_TagString: Untagged
@@ -1346,6 +1347,23 @@ Transform:
   - {fileID: 719493538}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &723613981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 723613979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8e6d6f1a3a447c4a9d790f8e401fc6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EscapeWindowExit
+  survivalSceneName: SausageSurvivalEnd
+  createWindowOnStart: 1
+  windowPosition: {x: 2.55, y: 1.25, z: 2.25}
+  windowSize: {x: 0.18, y: 1.8, z: 2.8}
+  windowColor: {r: 0.52, g: 0.82, b: 1, a: 0.55}
 --- !u!1 &731910006
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,9 +5,12 @@ using UnityEngine.UI;
 
 public class SurvivalEndGame : MonoBehaviour
 {
+    private const string CollectedSausageCountKey = "CollectedSausageCount";
+
     [Header("References")]
     [SerializeField] private Transform chainRoot;
     [SerializeField] private GameObject sausagePrefab;
+    [SerializeField] private Sprite fallingSausageSprite;
     [SerializeField] private GameObject birdPrefab;
     [SerializeField] private Text statusText;
     [SerializeField] private Text countText;
@@ -16,6 +19,7 @@ public class SurvivalEndGame : MonoBehaviour
     [SerializeField] private int startSausages = 8;
     [SerializeField] private int sausagesNeededToSurvive = 5;
     [SerializeField] private float sausageSpacing = 0.55f;
+    [SerializeField] private Vector3 sausageSpriteScale = new Vector3(1.25f, 1.25f, 1f);
 
     [Header("Falling")]
     [SerializeField] private float horizontalSpeed = 4f;
@@ -37,6 +41,7 @@ public class SurvivalEndGame : MonoBehaviour
 
     private void Start()
     {
+        ApplyCollectedSausageCount();
         EnsureReferences();
         CreateChain();
         ResetBirdTimer();
@@ -91,13 +96,32 @@ public class SurvivalEndGame : MonoBehaviour
         UpdateChainPositions();
     }
 
+    private void ApplyCollectedSausageCount()
+    {
+        if (!PlayerPrefs.HasKey(CollectedSausageCountKey))
+        {
+            return;
+        }
+
+        startSausages = Mathf.Max(0, PlayerPrefs.GetInt(CollectedSausageCountKey));
+        PlayerPrefs.DeleteKey(CollectedSausageCountKey);
+    }
+
     private void UpdateChainPositions()
     {
         for (int i = 0; i < sausages.Count; i++)
         {
             Transform sausageTransform = sausages[i].transform;
             sausageTransform.localPosition = new Vector3(0f, -i * sausageSpacing, 0f);
-            sausageTransform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+
+            if (sausages[i].GetComponent<SpriteRenderer>() == null)
+            {
+                sausageTransform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+            }
+            else
+            {
+                sausageTransform.localRotation = Quaternion.identity;
+            }
         }
 
         UpdateCountText();
@@ -247,13 +271,9 @@ public class SurvivalEndGame : MonoBehaviour
 
     private GameObject CreateSausage()
     {
-        GameObject sausage = sausagePrefab != null
-            ? Instantiate(sausagePrefab)
-            : GameObject.CreatePrimitive(PrimitiveType.Capsule);
-
-        sausage.name = "Survival Sausage";
-        sausage.transform.localScale = new Vector3(0.22f, 0.55f, 0.22f);
-        SetMaterialColor(sausage, new Color(0.85f, 0.28f, 0.18f));
+        GameObject sausage = fallingSausageSprite != null
+            ? CreateSpriteSausage()
+            : CreateCapsuleSausage();
 
         Collider collider = sausage.GetComponent<Collider>();
 
@@ -271,6 +291,30 @@ public class SurvivalEndGame : MonoBehaviour
 
         body.isKinematic = true;
         body.useGravity = false;
+        return sausage;
+    }
+
+    private GameObject CreateSpriteSausage()
+    {
+        GameObject sausage = new("Survival Sausage");
+        SpriteRenderer spriteRenderer = sausage.AddComponent<SpriteRenderer>();
+        spriteRenderer.sprite = fallingSausageSprite;
+        spriteRenderer.sortingOrder = 5;
+
+        sausage.transform.localScale = sausageSpriteScale;
+        sausage.AddComponent<BoxCollider>();
+        return sausage;
+    }
+
+    private GameObject CreateCapsuleSausage()
+    {
+        GameObject sausage = sausagePrefab != null
+            ? Instantiate(sausagePrefab)
+            : GameObject.CreatePrimitive(PrimitiveType.Capsule);
+
+        sausage.name = "Survival Sausage";
+        sausage.transform.localScale = new Vector3(0.22f, 0.55f, 0.22f);
+        SetMaterialColor(sausage, new Color(0.85f, 0.28f, 0.18f));
         return sausage;
     }
 
