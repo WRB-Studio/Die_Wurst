@@ -353,8 +353,8 @@ Transform:
   m_GameObject: {fileID: 236728269}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.3000007, y: 1, z: 3.500001}
-  m_LocalScale: {x: 0.3, y: 4, z: 10}
+  m_LocalPosition: {x: -7.3, y: 1, z: 5.3285}
+  m_LocalScale: {x: 0.3, y: 4, z: 13.683}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 993502398}
@@ -957,7 +957,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &493980558
 Transform:
   m_ObjectHideFlags: 0
@@ -967,11 +967,10 @@ Transform:
   m_GameObject: {fileID: 493980557}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.47, z: 7.56}
+  m_LocalPosition: {x: 0, y: 0.47, z: 9.44}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1152964907}
+  m_Children: []
   m_Father: {fileID: 1837157763}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &493980559
@@ -1374,8 +1373,8 @@ Transform:
   m_GameObject: {fileID: 731910006}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3, y: 1, z: 3.5}
-  m_LocalScale: {x: 0.3, y: 4, z: 10}
+  m_LocalPosition: {x: 3, y: 1, z: 5.3285}
+  m_LocalScale: {x: 0.3, y: 4, z: 13.683}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 993502398}
@@ -1620,6 +1619,67 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1073290151}
   m_CullTransparentMesh: 1
+--- !u!1001 &1112469513
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1837157763}
+    m_Modifications:
+    - target: {fileID: 2256242326254432157, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2256242326254432157, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.802
+      objectReference: {fileID: 0}
+    - target: {fileID: 2256242326254432157, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 9.389
+      objectReference: {fileID: 0}
+    - target: {fileID: 2256242326254432157, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2256242326254432157, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2256242326254432157, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2256242326254432157, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2256242326254432157, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2256242326254432157, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2256242326254432157, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5491230561629292788, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5903860231466687528, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+      propertyPath: m_Name
+      value: Metzger Animation Deluxe
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
 --- !u!1001 &1130786021
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1700,7 +1760,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1152964907
 Transform:
   m_ObjectHideFlags: 0
@@ -1709,12 +1769,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1152964906}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.74, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.274, y: 1.286, z: 9.44}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 493980558}
+  m_Father: {fileID: 1837157763}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &1152964908
 SphereCollider:
@@ -2509,7 +2569,7 @@ Transform:
   m_GameObject: {fileID: 1559326778}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -2.15, y: 1, z: 8.650001}
+  m_LocalPosition: {x: -2.15, y: 1, z: 12.32}
   m_LocalScale: {x: 0.3, y: 4, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2717,6 +2777,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2915340393186191399, guid: 860a551d05e0bd34e8127b8ebce742ca, type: 3}
   m_PrefabInstance: {fileID: 1632049914}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1683501706 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2256242326254432157, guid: 5819192340b7e4b488580d4ac268d4e8, type: 3}
+  m_PrefabInstance: {fileID: 1112469513}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1687273300
 GameObject:
   m_ObjectHideFlags: 0
@@ -2890,6 +2955,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1683501706}
+  - {fileID: 1152964907}
   - {fileID: 493980558}
   m_Father: {fileID: 993502398}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2906,6 +2973,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChefThrowSpawner
   chefPatrol: {fileID: 1837157765}
+  cookAnimator: {fileID: 0}
   throwOrigin: {fileID: 1152964907}
   laneTargets:
   - {fileID: 1130786022}
@@ -2915,6 +2983,8 @@ MonoBehaviour:
   throwablePrefabs:
   - {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
   - {fileID: 3294577712733071579, guid: b69841faaae5e0b46b3fb79c94aba820, type: 3}
+  idleAnimationStateName: Metzger Animation
+  throwAnimationStateName: werfen
   minThrowInterval: 0.4
   maxThrowInterval: 1.2
   minTargetXOffset: 4
