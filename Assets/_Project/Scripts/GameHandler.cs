@@ -15,6 +15,7 @@ public class GameHandler : MonoBehaviour
     [Header("UI")]
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject mainMenu;
+    [SerializeField] private GameObject creditsScreen;
     [SerializeField] private GameObject pausedImage;
     [SerializeField] private GameObject gameOverImage;
     [SerializeField] private GameObject scoreImage;
@@ -27,6 +28,7 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private Button mainMenuSettingsButton;
     [SerializeField] private Button mainMenuCreditsButton;
     [SerializeField] private Button mainMenuExitButton;
+    [SerializeField] private Button creditsMainMenuButton;
     [SerializeField] private TMP_Text scoreValueText;
     [SerializeField] private TMP_Text timeValueText;
 
@@ -42,6 +44,7 @@ public class GameHandler : MonoBehaviour
     private bool isPaused;
     private bool isGameOver;
     private bool isMainMenuOpen;
+    private bool isCreditsOpen;
     private float elapsedGameTime;
     private int collectedSausageCount;
     private int hitCount;
@@ -101,6 +104,12 @@ public class GameHandler : MonoBehaviour
 
         if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame)
         {
+            return;
+        }
+
+        if (isCreditsOpen)
+        {
+            CloseCredits();
             return;
         }
 
@@ -214,7 +223,33 @@ public class GameHandler : MonoBehaviour
 
     public void OpenCredits()
     {
-        Debug.Log("Credits button pressed, but no credits view is wired yet.", this);
+        if (creditsScreen == null)
+        {
+            Debug.LogWarning("Credits screen is not assigned.", this);
+            return;
+        }
+
+        isCreditsOpen = true;
+        isMainMenuOpen = false;
+
+        if (mainMenu != null)
+        {
+            mainMenu.SetActive(false);
+        }
+
+        creditsScreen.SetActive(true);
+    }
+
+    public void CloseCredits()
+    {
+        isCreditsOpen = false;
+
+        if (creditsScreen != null)
+        {
+            creditsScreen.SetActive(false);
+        }
+
+        OpenMainMenu();
     }
 
     private void TriggerGameOver()
@@ -230,12 +265,18 @@ public class GameHandler : MonoBehaviour
     {
         isMainMenuOpen = true;
         isPaused = false;
+        isCreditsOpen = false;
         SetPauseMenuVisible(false);
         UpdatePauseMenuState(showPause: true, showGameOver: false);
 
         if (mainMenu != null)
         {
             mainMenu.SetActive(true);
+        }
+
+        if (creditsScreen != null)
+        {
+            creditsScreen.SetActive(false);
         }
 
         PauseGameTime();
@@ -245,10 +286,16 @@ public class GameHandler : MonoBehaviour
     {
         SetPauseMenuVisible(false);
         UpdatePauseMenuState(showPause: true, showGameOver: false);
+        isCreditsOpen = false;
 
         if (mainMenu != null)
         {
             mainMenu.SetActive(false);
+        }
+
+        if (creditsScreen != null)
+        {
+            creditsScreen.SetActive(false);
         }
     }
 
@@ -379,6 +426,7 @@ public class GameHandler : MonoBehaviour
         BindButton(mainMenuSettingsButton, OpenSettings);
         BindButton(mainMenuCreditsButton, OpenCredits);
         BindButton(mainMenuExitButton, QuitGame);
+        BindButton(creditsMainMenuButton, ReturnToMainMenu);
     }
 
     private void BindButton(Button button, UnityEngine.Events.UnityAction action)
