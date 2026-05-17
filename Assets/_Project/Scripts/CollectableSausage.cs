@@ -84,6 +84,7 @@ public class CollectableSausage : MonoBehaviour
         }
 
         chainController.AddSegment(transform);
+        GameHandler.Instance?.RegisterCollectedSausage();
     }
 
     public void ReleaseFromChain(Transform chainRoot)
