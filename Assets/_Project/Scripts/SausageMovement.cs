@@ -10,7 +10,7 @@ public class SausageMovement : MonoBehaviour
 
     [Header("X Limits")]
     [SerializeField] private float minX = -6f;
-    [SerializeField] private float maxX = 6f;
+    [SerializeField] private float maxX = 7.1f;
 
     [Header("Lane Positions")]
     [SerializeField] private Transform[] lanePoints;

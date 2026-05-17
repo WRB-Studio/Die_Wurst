@@ -10,7 +10,7 @@ public class EscapeWindowExit : MonoBehaviour
 
     [Header("Window")]
     [SerializeField] private bool createWindowOnStart = true;
-    [SerializeField] private Vector3 windowPosition = new Vector3(2.55f, 1.25f, 2.25f);
+    [SerializeField] private Vector3 windowPosition = new Vector3(6.95f, 1.25f, 2.25f);
     [SerializeField] private Vector3 windowSize = new Vector3(0.18f, 1.8f, 2.8f);
     [SerializeField] private Color windowColor = new Color(0.52f, 0.82f, 1f, 0.55f);
 
@@ -25,6 +25,21 @@ public class EscapeWindowExit : MonoBehaviour
     }
 
     private void OnTriggerEnter(Collider other)
+    {
+        TryLoadSurvivalScene(other);
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        TryLoadSurvivalScene(other);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        TryLoadSurvivalScene(collision != null ? collision.collider : null);
+    }
+
+    private void TryLoadSurvivalScene(Collider other)
     {
         if (isLoading || other == null)
         {

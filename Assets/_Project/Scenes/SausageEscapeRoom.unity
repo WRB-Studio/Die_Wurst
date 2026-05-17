@@ -1724,7 +1724,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EscapeWindowExit
   survivalSceneName: SausageSurvivalEnd
   createWindowOnStart: 1
-  windowPosition: {x: 2.55, y: 1.25, z: 2.25}
+  windowPosition: {x: 6.95, y: 1.25, z: 2.25}
   windowSize: {x: 0.18, y: 1.8, z: 2.8}
   windowColor: {r: 0.52, g: 0.82, b: 1, a: 0.55}
 --- !u!1 &731910006
@@ -4473,7 +4473,7 @@ MonoBehaviour:
   laneJumpSpeed: 6
   laneJumpHeight: 0.75
   minX: -3.4
-  maxX: 6.5
+  maxX: 7.1
   lanePoints:
   - {fileID: 1130786022}
   - {fileID: 1632049915}
