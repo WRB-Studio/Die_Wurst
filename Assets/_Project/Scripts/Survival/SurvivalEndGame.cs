@@ -42,7 +42,7 @@ public class SurvivalEndGame : MonoBehaviour
     [SerializeField] private Sprite birdFrameB;
     [SerializeField] private Vector3 birdSpriteScale = new Vector3(1.4f, 1.4f, 1f);
 
-    private readonly List<SurvivalSausage> sausages = new();
+    private readonly List<SurvivalSausage> sausages = new List<SurvivalSausage>();
     private float birdTimer;
     private bool isFinished;
 
@@ -197,7 +197,7 @@ public class SurvivalEndGame : MonoBehaviour
         bool fromLeft = Random.value < 0.5f;
         float spawnX = GetHorizontalCameraEdge(fromLeft) + (fromLeft ? -birdSpawnOffset : birdSpawnOffset);
         float y = chainRoot.position.y + Random.Range(-birdVerticalRange, birdVerticalRange);
-        Vector3 spawnPosition = new(spawnX, y, 0f);
+        Vector3 spawnPosition = new Vector3(spawnX, y, 0f);
         Vector3 direction = fromLeft ? Vector3.right : Vector3.left;
 
         GameObject bird = CreateBird(spawnPosition);
@@ -237,11 +237,11 @@ public class SurvivalEndGame : MonoBehaviour
 
         if (sausages.Count >= sausagesNeededToSurvive)
         {
-            UpdateText("Überlebt. Die Wurstkette war lang genug.");
+            UpdateText("Ueberlebt. Die Wurstkette war lang genug.");
         }
         else
         {
-            UpdateText("Zu kurz gelandet. Mehr Würstchen hätten geholfen.");
+            UpdateText("Zu kurz gelandet. Mehr Wuerstchen haetten geholfen.");
         }
     }
 
@@ -258,7 +258,7 @@ public class SurvivalEndGame : MonoBehaviour
 
         if (chainRoot == null)
         {
-            GameObject chainObject = new("Sausage Chain");
+            GameObject chainObject = new GameObject("Sausage Chain");
             chainObject.transform.position = new Vector3(0f, 4.2f, 0f);
             chainRoot = chainObject.transform;
         }
@@ -273,7 +273,7 @@ public class SurvivalEndGame : MonoBehaviour
     {
         if (Camera.main == null)
         {
-            GameObject cameraObject = new("Main Camera");
+            GameObject cameraObject = new GameObject("Main Camera");
             Camera camera = cameraObject.AddComponent<Camera>();
             cameraObject.tag = "MainCamera";
             cameraObject.transform.position = new Vector3(0f, 0f, -12f);
@@ -285,7 +285,7 @@ public class SurvivalEndGame : MonoBehaviour
 
         if (FindFirstObjectByType<Light>() == null)
         {
-            GameObject lightObject = new("Directional Light");
+            GameObject lightObject = new GameObject("Directional Light");
             Light light = lightObject.AddComponent<Light>();
             light.type = LightType.Directional;
             light.intensity = 1.2f;
@@ -335,7 +335,7 @@ public class SurvivalEndGame : MonoBehaviour
             return;
         }
 
-        GameObject background = new("Survival Background");
+        GameObject background = new GameObject("Survival Background");
         background.transform.position = new Vector3(0f, 1.1f, 10f);
         background.transform.localScale = new Vector3(3.6f, 3.6f, 1f);
 
@@ -366,7 +366,7 @@ public class SurvivalEndGame : MonoBehaviour
 
     private GameObject CreateSpriteSausage(Sprite sprite, Vector3 spriteScale)
     {
-        GameObject sausage = new("Survival Sausage");
+        GameObject sausage = new GameObject("Survival Sausage");
         SpriteRenderer spriteRenderer = sausage.AddComponent<SpriteRenderer>();
         spriteRenderer.sprite = sprite;
         spriteRenderer.sortingOrder = 5;
@@ -417,7 +417,7 @@ public class SurvivalEndGame : MonoBehaviour
 
     private GameObject CreateSpriteBird(Vector3 spawnPosition)
     {
-        GameObject bird = new("Survival Bird");
+        GameObject bird = new GameObject("Survival Bird");
         bird.transform.position = spawnPosition;
         bird.transform.localScale = birdSpriteScale;
 
@@ -444,7 +444,7 @@ public class SurvivalEndGame : MonoBehaviour
 
     private void CreateSimpleUi()
     {
-        GameObject canvasObject = new("Canvas");
+        GameObject canvasObject = new GameObject("Canvas");
         Canvas canvas = canvasObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvasObject.AddComponent<CanvasScaler>();
@@ -463,7 +463,7 @@ public class SurvivalEndGame : MonoBehaviour
 
     private Text CreateText(string name, Transform parent, Vector2 anchoredPosition, int fontSize)
     {
-        GameObject textObject = new(name);
+        GameObject textObject = new GameObject(name);
         textObject.transform.SetParent(parent, false);
 
         Text text = textObject.AddComponent<Text>();
@@ -517,7 +517,7 @@ public class SurvivalEndGame : MonoBehaviour
     {
         if (countText != null)
         {
-            countText.text = $"Würste: {sausages.Count}/{sausagesNeededToSurvive}";
+            countText.text = $"Wuerste: {sausages.Count}/{sausagesNeededToSurvive}";
         }
     }
 }

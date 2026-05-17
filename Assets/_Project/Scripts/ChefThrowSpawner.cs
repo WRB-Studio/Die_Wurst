@@ -109,7 +109,10 @@ public class ChefThrowSpawner : MonoBehaviour
             laneThrownObject = instance.AddComponent<LaneThrownObject>();
         }
 
-        AudioManager.Instance.PlaySFX("sfx_knife", false); 
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX("sfx_knife", false);
+        }
 
         laneThrownObject.Initialize(
             spawnPosition,

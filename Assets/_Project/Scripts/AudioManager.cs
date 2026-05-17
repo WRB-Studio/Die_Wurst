@@ -19,7 +19,7 @@ public class AudioManager : MonoBehaviour
     [Header("Sounds")]
     public AudioClip[] soundClips;  // Hier ziehst du deine 3 Clips rein
 
-    private Dictionary<string, AudioSource> _activeLoops = new(); // Laufende Loops
+    private Dictionary<string, AudioSource> _activeLoops = new Dictionary<string, AudioSource>(); // Laufende Loops
 
     private void Awake()
     {
@@ -31,6 +31,8 @@ public class AudioManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        EnsureAudioSources();
+
         musicSource.volume = musicVolume;
         sfxSource.volume = sfxVolume;
     }
@@ -38,6 +40,19 @@ public class AudioManager : MonoBehaviour
     private void Start() {
         if (startMusic != null)
             PlayMusic(startMusic);
+    }
+
+    private void EnsureAudioSources()
+    {
+        if (musicSource == null)
+        {
+            musicSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        if (sfxSource == null)
+        {
+            sfxSource = gameObject.AddComponent<AudioSource>();
+        }
     }
 
     // --- Musik ---
@@ -59,6 +74,11 @@ public class AudioManager : MonoBehaviour
 
     public void PlaySFX(int index, bool loop = false)
     {
+        if (soundClips == null)
+        {
+            return;
+        }
+
         if (index < 0 || index >= soundClips.Length)
         {
             Debug.LogWarning($"AudioManager: Index {index} existiert nicht!");
@@ -71,6 +91,11 @@ public class AudioManager : MonoBehaviour
 
     public void PlaySFX(string clipName, bool loop = false)
     {
+        if (soundClips == null)
+        {
+            return;
+        }
+
         AudioClip clip = System.Array.Find(soundClips, c => c.name == clipName);
         if (clip == null)
         {

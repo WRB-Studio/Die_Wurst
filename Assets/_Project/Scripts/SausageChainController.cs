@@ -24,7 +24,7 @@ public class SausageChainController : MonoBehaviour
     [SerializeField] private float chainBonusPerSegment = 0.12f;
     [SerializeField] private Transform segmentParent;
 
-    private readonly List<ChainSegment> collectedSegments = new();
+    private readonly List<ChainSegment> collectedSegments = new List<ChainSegment>();
     private SausageMovement sausageMovement;
 
     public int SegmentCount => collectedSegments.Count;
@@ -75,7 +75,10 @@ public class SausageChainController : MonoBehaviour
             JoinElapsed = 0f
         });
 
-        AudioManager.Instance.PlaySFX("sfx_yay", false);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX("sfx_yay", false);
+        }
 
         ApplyChainBonus();
     }
