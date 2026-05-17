@@ -1334,7 +1334,7 @@ MonoBehaviour:
   showMainMenuOnStart: 1
   collectScore: 1000
   hitPenalty: 100
-  timeScorePerSecond: 100
+  timeScorePerSecond: 50
 --- !u!1 &653761510
 GameObject:
   m_ObjectHideFlags: 0
