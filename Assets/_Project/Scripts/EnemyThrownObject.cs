@@ -37,6 +37,8 @@ public class EnemyThrownObject : MonoBehaviour
         }
 
         hasHit = true;
+        AudioManager.Instance.PlaySFX("sfx_roblox_oof_short", false);
+        AudioManager.Instance.PlaySFXBlocking("sfx_grinder", volume: 1f);
         chainController.ReleaseLastSegment();
 
         if (consumeOnHit)
