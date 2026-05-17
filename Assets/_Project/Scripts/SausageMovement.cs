@@ -113,6 +113,8 @@ public class SausageMovement : MonoBehaviour
 
     private void StartLaneJump(int newLaneIndex)
     {
+        AudioManager.Instance.PlaySFX("sfx_jump01", false, 0.5f);
+
         int clampedLaneIndex = GetValidLaneIndex(newLaneIndex);
 
         if (clampedLaneIndex == currentLaneIndex)

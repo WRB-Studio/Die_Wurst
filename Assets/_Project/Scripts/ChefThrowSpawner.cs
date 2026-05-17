@@ -4,9 +4,14 @@ public class ChefThrowSpawner : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private ChefPatrol chefPatrol;
+    [SerializeField] private Animator cookAnimator;
     [SerializeField] private Transform throwOrigin;
     [SerializeField] private Transform[] laneTargets;
     [SerializeField] private GameObject[] throwablePrefabs;
+
+    [Header("Animation")]
+    [SerializeField] private string idleAnimationStateName = "Metzger Animation";
+    [SerializeField] private string throwAnimationStateName = "werfen";
 
     [Header("Timing")]
     [SerializeField] private float minThrowInterval = 0.4f;
@@ -34,12 +39,18 @@ public class ChefThrowSpawner : MonoBehaviour
 
     private float throwTimer;
     private bool wasWaitingLastFrame;
+    private bool isPlayingThrowAnimation;
 
     private void Awake()
     {
         if (chefPatrol == null)
         {
             chefPatrol = GetComponent<ChefPatrol>();
+        }
+
+        if (cookAnimator == null)
+        {
+            cookAnimator = GetComponentInChildren<Animator>();
         }
     }
 
@@ -50,6 +61,8 @@ public class ChefThrowSpawner : MonoBehaviour
 
     private void Update()
     {
+        UpdateThrowAnimation();
+
         if (chefPatrol == null)
         {
             wasWaitingLastFrame = false;
@@ -114,6 +127,8 @@ public class ChefThrowSpawner : MonoBehaviour
             AudioManager.Instance.PlaySFX("sfx_knife", false);
         }
 
+        PlayThrowAnimation();
+
         laneThrownObject.Initialize(
             spawnPosition,
             targetPosition,
@@ -154,6 +169,46 @@ public class ChefThrowSpawner : MonoBehaviour
     private void ResetThrowTimer()
     {
         throwTimer = Random.Range(minThrowInterval, maxThrowInterval);
+    }
+
+    private void PlayThrowAnimation()
+    {
+        if (cookAnimator == null || string.IsNullOrWhiteSpace(throwAnimationStateName))
+        {
+            return;
+        }
+
+        cookAnimator.Play(throwAnimationStateName, 0, 0f);
+        isPlayingThrowAnimation = true;
+    }
+
+    private void UpdateThrowAnimation()
+    {
+        if (cookAnimator == null || !isPlayingThrowAnimation)
+        {
+            return;
+        }
+
+        AnimatorStateInfo stateInfo = cookAnimator.GetCurrentAnimatorStateInfo(0);
+
+        if (!stateInfo.IsName(throwAnimationStateName))
+        {
+            return;
+        }
+
+        if (stateInfo.normalizedTime < 1f)
+        {
+            return;
+        }
+
+        isPlayingThrowAnimation = false;
+
+        if (string.IsNullOrWhiteSpace(idleAnimationStateName))
+        {
+            return;
+        }
+
+        cookAnimator.Play(idleAnimationStateName, 0, 0f);
     }
 
     private Transform GetThrowOrigin()
