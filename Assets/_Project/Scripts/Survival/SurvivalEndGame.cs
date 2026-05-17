@@ -11,15 +11,19 @@ public class SurvivalEndGame : MonoBehaviour
     [SerializeField] private Transform chainRoot;
     [SerializeField] private GameObject sausagePrefab;
     [SerializeField] private Sprite fallingSausageSprite;
+    [SerializeField] private Sprite collectedSausageSprite;
     [SerializeField] private GameObject birdPrefab;
     [SerializeField] private Text statusText;
     [SerializeField] private Text countText;
+    [SerializeField] private Sprite backgroundSprite;
 
     [Header("Sausage Chain")]
     [SerializeField] private int startSausages = 8;
     [SerializeField] private int sausagesNeededToSurvive = 5;
     [SerializeField] private float sausageSpacing = 0.55f;
-    [SerializeField] private Vector3 sausageSpriteScale = new Vector3(1.25f, 1.25f, 1f);
+    [SerializeField] private float collectedSausageRadius = 0.85f;
+    [SerializeField] private Vector3 mainSausageSpriteScale = new Vector3(1.25f, 1.25f, 1f);
+    [SerializeField] private Vector3 collectedSausageSpriteScale = new Vector3(0.75f, 0.75f, 1f);
 
     [Header("Falling")]
     [SerializeField] private float horizontalSpeed = 4f;
@@ -32,8 +36,11 @@ public class SurvivalEndGame : MonoBehaviour
     [SerializeField] private float minBirdInterval = 0.8f;
     [SerializeField] private float maxBirdInterval = 1.6f;
     [SerializeField] private float birdSpeed = 7f;
-    [SerializeField] private float birdSpawnX = 8f;
+    [SerializeField] private float birdSpawnOffset = 1f;
     [SerializeField] private float birdVerticalRange = 2.5f;
+    [SerializeField] private Sprite birdFrameA;
+    [SerializeField] private Sprite birdFrameB;
+    [SerializeField] private Vector3 birdSpriteScale = new Vector3(1.4f, 1.4f, 1f);
 
     private readonly List<SurvivalSausage> sausages = new();
     private float birdTimer;
@@ -81,7 +88,7 @@ public class SurvivalEndGame : MonoBehaviour
 
         for (int i = 0; i < startSausages; i++)
         {
-            GameObject instance = CreateSausage();
+            GameObject instance = CreateSausage(i == 0);
             instance.transform.SetParent(chainRoot, false);
             SurvivalSausage sausage = instance.GetComponent<SurvivalSausage>();
 
@@ -111,20 +118,27 @@ public class SurvivalEndGame : MonoBehaviour
     {
         for (int i = 0; i < sausages.Count; i++)
         {
-            Transform sausageTransform = sausages[i].transform;
-            sausageTransform.localPosition = new Vector3(0f, -i * sausageSpacing, 0f);
-
-            if (sausages[i].GetComponent<SpriteRenderer>() == null)
-            {
-                sausageTransform.localRotation = Quaternion.Euler(0f, 0f, 90f);
-            }
-            else
-            {
-                sausageTransform.localRotation = Quaternion.identity;
-            }
+            sausages[i].SetBaseLocalPosition(GetSausagePosition(i));
         }
 
         UpdateCountText();
+    }
+
+    private Vector3 GetSausagePosition(int index)
+    {
+        if (index == 0)
+        {
+            return Vector3.zero;
+        }
+
+        int ringIndex = index - 1;
+        int sausagesPerRing = 8;
+        int ring = ringIndex / sausagesPerRing;
+        int indexInRing = ringIndex % sausagesPerRing;
+        float radius = collectedSausageRadius + ring * sausageSpacing;
+        float angle = indexInRing * Mathf.PI * 2f / sausagesPerRing;
+
+        return new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0f);
     }
 
     private void MoveChain()
@@ -181,9 +195,9 @@ public class SurvivalEndGame : MonoBehaviour
         }
 
         bool fromLeft = Random.value < 0.5f;
-        float x = fromLeft ? -birdSpawnX : birdSpawnX;
+        float spawnX = GetHorizontalCameraEdge(fromLeft) + (fromLeft ? -birdSpawnOffset : birdSpawnOffset);
         float y = chainRoot.position.y + Random.Range(-birdVerticalRange, birdVerticalRange);
-        Vector3 spawnPosition = new(x, y, 0f);
+        Vector3 spawnPosition = new(spawnX, y, 0f);
         Vector3 direction = fromLeft ? Vector3.right : Vector3.left;
 
         GameObject bird = CreateBird(spawnPosition);
@@ -194,7 +208,22 @@ public class SurvivalEndGame : MonoBehaviour
             survivalBird = bird.AddComponent<SurvivalBird>();
         }
 
-        survivalBird.Initialize(this, direction, birdSpeed);
+        survivalBird.Initialize(this, direction, birdSpeed, birdFrameA, birdFrameB);
+    }
+
+    private float GetHorizontalCameraEdge(bool leftEdge)
+    {
+        Camera camera = Camera.main;
+
+        if (camera == null)
+        {
+            return leftEdge ? minX : maxX;
+        }
+
+        float distanceToGameplayPlane = Mathf.Abs(camera.transform.position.z);
+        float viewportX = leftEdge ? 0f : 1f;
+        Vector3 edgePosition = camera.ViewportToWorldPoint(new Vector3(viewportX, 0.5f, distanceToGameplayPlane));
+        return edgePosition.x;
     }
 
     private void CheckLanding()
@@ -224,6 +253,8 @@ public class SurvivalEndGame : MonoBehaviour
     private void EnsureReferences()
     {
         EnsureCameraAndWorld();
+        HideGeneratedWorld();
+        EnsureBackground();
 
         if (chainRoot == null)
         {
@@ -261,7 +292,7 @@ public class SurvivalEndGame : MonoBehaviour
             lightObject.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
         }
 
-        if (GameObject.Find("Survival Ground") == null)
+        if (backgroundSprite == null && GameObject.Find("Survival Ground") == null)
         {
             CreateWorldCube("Factory Wall", new Vector3(0f, 4.2f, 1.2f), new Vector3(12f, 4f, 0.4f), new Color(0.55f, 0.55f, 0.52f));
             CreateWorldCube("Window Opening", new Vector3(0f, 4.2f, 0.85f), new Vector3(3.6f, 2.2f, 0.25f), new Color(0.53f, 0.78f, 0.94f));
@@ -269,10 +300,13 @@ public class SurvivalEndGame : MonoBehaviour
         }
     }
 
-    private GameObject CreateSausage()
+    private GameObject CreateSausage(bool isMainSausage)
     {
-        GameObject sausage = fallingSausageSprite != null
-            ? CreateSpriteSausage()
+        Sprite sprite = isMainSausage ? fallingSausageSprite : collectedSausageSprite;
+        Vector3 spriteScale = isMainSausage ? mainSausageSpriteScale : collectedSausageSpriteScale;
+
+        GameObject sausage = sprite != null
+            ? CreateSpriteSausage(sprite, spriteScale)
             : CreateCapsuleSausage();
 
         Collider collider = sausage.GetComponent<Collider>();
@@ -294,14 +328,50 @@ public class SurvivalEndGame : MonoBehaviour
         return sausage;
     }
 
-    private GameObject CreateSpriteSausage()
+    private void EnsureBackground()
+    {
+        if (backgroundSprite == null || GameObject.Find("Survival Background") != null)
+        {
+            return;
+        }
+
+        GameObject background = new("Survival Background");
+        background.transform.position = new Vector3(0f, 1.1f, 10f);
+        background.transform.localScale = new Vector3(3.6f, 3.6f, 1f);
+
+        SpriteRenderer spriteRenderer = background.AddComponent<SpriteRenderer>();
+        spriteRenderer.sprite = backgroundSprite;
+        spriteRenderer.sortingOrder = -20;
+    }
+
+    private void HideGeneratedWorld()
+    {
+        HideObject("Factory Wall");
+        HideObject("Window Hole");
+        HideObject("Window Opening");
+        HideObject("Ground");
+        HideObject("Survival Ground");
+        HideObject("Safe Landing Mark");
+    }
+
+    private void HideObject(string objectName)
+    {
+        GameObject target = GameObject.Find(objectName);
+
+        if (target != null)
+        {
+            target.SetActive(false);
+        }
+    }
+
+    private GameObject CreateSpriteSausage(Sprite sprite, Vector3 spriteScale)
     {
         GameObject sausage = new("Survival Sausage");
         SpriteRenderer spriteRenderer = sausage.AddComponent<SpriteRenderer>();
-        spriteRenderer.sprite = fallingSausageSprite;
+        spriteRenderer.sprite = sprite;
         spriteRenderer.sortingOrder = 5;
 
-        sausage.transform.localScale = sausageSpriteScale;
+        sausage.transform.localScale = spriteScale;
         sausage.AddComponent<BoxCollider>();
         return sausage;
     }
@@ -320,14 +390,11 @@ public class SurvivalEndGame : MonoBehaviour
 
     private GameObject CreateBird(Vector3 spawnPosition)
     {
-        GameObject bird = birdPrefab != null
-            ? Instantiate(birdPrefab, spawnPosition, Quaternion.identity)
-            : GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        GameObject bird = birdFrameA != null
+            ? CreateSpriteBird(spawnPosition)
+            : CreateCapsuleBird(spawnPosition);
 
         bird.name = "Survival Bird";
-        bird.transform.position = spawnPosition;
-        bird.transform.localScale = new Vector3(0.28f, 0.18f, 0.55f);
-        SetMaterialColor(bird, new Color(0.08f, 0.08f, 0.08f));
 
         Collider collider = bird.GetComponent<Collider>();
 
@@ -345,6 +412,33 @@ public class SurvivalEndGame : MonoBehaviour
 
         body.isKinematic = true;
         body.useGravity = false;
+        return bird;
+    }
+
+    private GameObject CreateSpriteBird(Vector3 spawnPosition)
+    {
+        GameObject bird = new("Survival Bird");
+        bird.transform.position = spawnPosition;
+        bird.transform.localScale = birdSpriteScale;
+
+        SpriteRenderer spriteRenderer = bird.AddComponent<SpriteRenderer>();
+        spriteRenderer.sprite = birdFrameA;
+        spriteRenderer.sortingOrder = 8;
+
+        BoxCollider collider = bird.AddComponent<BoxCollider>();
+        collider.size = new Vector3(1.2f, 0.6f, 0.2f);
+        return bird;
+    }
+
+    private GameObject CreateCapsuleBird(Vector3 spawnPosition)
+    {
+        GameObject bird = birdPrefab != null
+            ? Instantiate(birdPrefab, spawnPosition, Quaternion.identity)
+            : GameObject.CreatePrimitive(PrimitiveType.Capsule);
+
+        bird.transform.position = spawnPosition;
+        bird.transform.localScale = new Vector3(0.28f, 0.18f, 0.55f);
+        SetMaterialColor(bird, new Color(0.08f, 0.08f, 0.08f));
         return bird;
     }
 

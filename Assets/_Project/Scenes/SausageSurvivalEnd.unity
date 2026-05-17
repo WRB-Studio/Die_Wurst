@@ -220,7 +220,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &279963593
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -443,13 +443,17 @@ MonoBehaviour:
   chainRoot: {fileID: 1570532153}
   sausagePrefab: {fileID: 4547207601120964479, guid: 8f653cc99535a7c41b7ce468c52a65cf, type: 3}
   fallingSausageSprite: {fileID: 21300000, guid: 6269b488e133d4947b814a510e7f4e8e, type: 3}
+  collectedSausageSprite: {fileID: 21300000, guid: 67bce22298233b64ca2b2c1aa3cdd6f5, type: 3}
   birdPrefab: {fileID: 8915942466839942559, guid: 3da3e6dfcdcf47b4183bd03976cb3495, type: 3}
   statusText: {fileID: 1087843278}
   countText: {fileID: 1412639163}
+  backgroundSprite: {fileID: 21300000, guid: d5a8a4c8b4c64e7e9c49be9ef2b3b2a1, type: 3}
   startSausages: 8
   sausagesNeededToSurvive: 5
   sausageSpacing: 0.55
-  sausageSpriteScale: {x: 1.25, y: 1.25, z: 1}
+  collectedSausageRadius: 0.85
+  mainSausageSpriteScale: {x: 1.25, y: 1.25, z: 1}
+  collectedSausageSpriteScale: {x: 0.75, y: 0.75, z: 1}
   horizontalSpeed: 4
   fallSpeed: 1.2
   minX: -5
@@ -458,8 +462,11 @@ MonoBehaviour:
   minBirdInterval: 0.8
   maxBirdInterval: 1.6
   birdSpeed: 7
-  birdSpawnX: 8
+  birdSpawnOffset: 1
   birdVerticalRange: 2.5
+  birdFrameA: {fileID: 21300000, guid: 7d4e51e8738a4d40b940fb2ef8da7001, type: 3}
+  birdFrameB: {fileID: 21300000, guid: 6bf5711bd2e44814a0e1763dd4ce6ea5, type: 3}
+  birdSpriteScale: {x: 1.4, y: 1.4, z: 1}
 --- !u!4 &746091297
 Transform:
   m_ObjectHideFlags: 0
@@ -675,7 +682,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &1129435223
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -897,7 +904,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &1767841638
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1009,7 +1016,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &2099951280
 MeshRenderer:
   m_ObjectHideFlags: 0
