@@ -1303,7 +1303,7 @@ MonoBehaviour:
   musicSource: {fileID: 1321481035}
   sfxSource: {fileID: 2091613379}
   startMusic: {fileID: 8300000, guid: cb3bc85905332492f87566e4adb21604, type: 3}
-  musicVolume: 0
+  musicVolume: 0.2
   sfxVolume: 1
   soundClips:
   - {fileID: 8300000, guid: cb3bc85905332492f87566e4adb21604, type: 3}
@@ -3123,6 +3123,8 @@ MonoBehaviour:
   segmentSpacing: 0.2
   segmentYOffset: 0
   followSmoothness: 6
+  laneFollowSmoothness: 0.08
+  laneFollowDelayPerSegment: 0.025
   joinDuration: 0.25
   joinArcHeight: 0.35
   grinderDropX: -3.5
