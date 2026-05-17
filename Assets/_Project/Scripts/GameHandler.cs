@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameHandler : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject pausedImage;
     [SerializeField] private GameObject gameOverImage;
+    [SerializeField] private GameObject scoreImage;
+    [SerializeField] private GameObject timeImage;
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button replayButton;
     [SerializeField] private Button pauseMainMenuButton;
@@ -24,14 +27,25 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private Button mainMenuSettingsButton;
     [SerializeField] private Button mainMenuCreditsButton;
     [SerializeField] private Button mainMenuExitButton;
+    [SerializeField] private TMP_Text scoreValueText;
+    [SerializeField] private TMP_Text timeValueText;
 
     [Header("Gameplay")]
     [SerializeField] private SausageChainController playerChain;
     [SerializeField] private bool showMainMenuOnStart = true;
 
+    [Header("Scoring")]
+    [SerializeField] private int collectScore = 100;
+    [SerializeField] private int hitPenalty = 50;
+    [SerializeField] private int timeScorePerSecond = 10;
+
     private bool isPaused;
     private bool isGameOver;
     private bool isMainMenuOpen;
+    private float elapsedGameTime;
+    private int collectedSausageCount;
+    private int hitCount;
+    private int currentScore;
 
     private void Awake()
     {
@@ -49,6 +63,8 @@ public class GameHandler : MonoBehaviour
 
     private void Start()
     {
+        ResetRunStats();
+
         if (skipMainMenuOnNextLoad)
         {
             skipMainMenuOnNextLoad = false;
@@ -77,6 +93,12 @@ public class GameHandler : MonoBehaviour
 
     private void Update()
     {
+        if (IsGameplayRunning())
+        {
+            elapsedGameTime += Time.deltaTime;
+            RecalculateScore();
+        }
+
         if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             return;
@@ -103,12 +125,26 @@ public class GameHandler : MonoBehaviour
             return;
         }
 
+        hitCount++;
+        RecalculateScore();
+
         if (playerChain.ReleaseLastSegment())
         {
             return;
         }
 
         TriggerGameOver();
+    }
+
+    public void RegisterCollectedSausage()
+    {
+        if (isGameOver)
+        {
+            return;
+        }
+
+        collectedSausageCount++;
+        RecalculateScore();
     }
 
     public void PauseGame()
@@ -161,6 +197,7 @@ public class GameHandler : MonoBehaviour
         isMainMenuOpen = false;
         isPaused = false;
         isGameOver = false;
+        ResetRunStats();
         HideAllMenus();
         ResumeGameTime();
     }
@@ -244,6 +281,26 @@ public class GameHandler : MonoBehaviour
         {
             gameOverImage.SetActive(showGameOver);
         }
+
+        if (scoreImage != null)
+        {
+            scoreImage.SetActive(showGameOver);
+        }
+
+        if (timeImage != null)
+        {
+            timeImage.SetActive(showGameOver);
+        }
+
+        if (scoreValueText != null)
+        {
+            scoreValueText.gameObject.SetActive(showGameOver);
+        }
+
+        if (timeValueText != null)
+        {
+            timeValueText.gameObject.SetActive(showGameOver);
+        }
     }
 
     private void PauseGameTime()
@@ -256,6 +313,48 @@ public class GameHandler : MonoBehaviour
     {
         Time.timeScale = 1f;
         AudioManager.Instance?.ResumeMusic();
+    }
+
+    private bool IsGameplayRunning()
+    {
+        return !isPaused && !isGameOver && !isMainMenuOpen;
+    }
+
+    private void ResetRunStats()
+    {
+        elapsedGameTime = 0f;
+        collectedSausageCount = 0;
+        hitCount = 0;
+        currentScore = 0;
+        UpdateStatsUI();
+    }
+
+    private void RecalculateScore()
+    {
+        int timeScore = Mathf.FloorToInt(elapsedGameTime) * timeScorePerSecond;
+        currentScore = Mathf.Max(0, collectedSausageCount * collectScore + timeScore - hitCount * hitPenalty);
+        UpdateStatsUI();
+    }
+
+    private void UpdateStatsUI()
+    {
+        if (scoreValueText != null)
+        {
+            scoreValueText.text = currentScore.ToString();
+        }
+
+        if (timeValueText != null)
+        {
+            timeValueText.text = FormatTime(elapsedGameTime);
+        }
+    }
+
+    private static string FormatTime(float timeInSeconds)
+    {
+        int totalSeconds = Mathf.Max(0, Mathf.FloorToInt(timeInSeconds));
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return $"{minutes:00}m {seconds:00}s";
     }
 
     private void EnsureEventSystemExists()
