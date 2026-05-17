@@ -9,10 +9,15 @@ public class GameHandler : MonoBehaviour
 {
     public static GameHandler Instance { get; private set; }
 
+    private static bool skipMainMenuOnNextLoad;
+
     [Header("UI")]
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject mainMenu;
+    [SerializeField] private GameObject pausedImage;
+    [SerializeField] private GameObject gameOverImage;
     [SerializeField] private Button resumeButton;
+    [SerializeField] private Button replayButton;
     [SerializeField] private Button pauseMainMenuButton;
     [SerializeField] private Button pauseExitButton;
     [SerializeField] private Button gameStartButton;
@@ -44,6 +49,13 @@ public class GameHandler : MonoBehaviour
 
     private void Start()
     {
+        if (skipMainMenuOnNextLoad)
+        {
+            skipMainMenuOnNextLoad = false;
+            StartGame();
+            return;
+        }
+
         if (showMainMenuOnStart && mainMenu != null)
         {
             OpenMainMenu();
@@ -108,7 +120,7 @@ public class GameHandler : MonoBehaviour
 
         isPaused = true;
         SetPauseMenuVisible(true);
-        SetResumeButtonVisible(true);
+        UpdatePauseMenuState(showPause: true, showGameOver: false);
         PauseGameTime();
     }
 
@@ -121,6 +133,7 @@ public class GameHandler : MonoBehaviour
 
         isPaused = false;
         SetPauseMenuVisible(false);
+        UpdatePauseMenuState(showPause: true, showGameOver: false);
         ResumeGameTime();
     }
 
@@ -128,6 +141,12 @@ public class GameHandler : MonoBehaviour
     {
         ResumeGameTime();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void ReplayGame()
+    {
+        skipMainMenuOnNextLoad = true;
+        RestartScene();
     }
 
     public void ReturnToMainMenu()
@@ -166,7 +185,7 @@ public class GameHandler : MonoBehaviour
         isGameOver = true;
         isPaused = false;
         SetPauseMenuVisible(true);
-        SetResumeButtonVisible(false);
+        UpdatePauseMenuState(showPause: false, showGameOver: true);
         PauseGameTime();
     }
 
@@ -175,6 +194,7 @@ public class GameHandler : MonoBehaviour
         isMainMenuOpen = true;
         isPaused = false;
         SetPauseMenuVisible(false);
+        UpdatePauseMenuState(showPause: true, showGameOver: false);
 
         if (mainMenu != null)
         {
@@ -187,6 +207,7 @@ public class GameHandler : MonoBehaviour
     private void HideAllMenus()
     {
         SetPauseMenuVisible(false);
+        UpdatePauseMenuState(showPause: true, showGameOver: false);
 
         if (mainMenu != null)
         {
@@ -202,11 +223,26 @@ public class GameHandler : MonoBehaviour
         }
     }
 
-    private void SetResumeButtonVisible(bool isVisible)
+    private void UpdatePauseMenuState(bool showPause, bool showGameOver)
     {
         if (resumeButton != null)
         {
-            resumeButton.gameObject.SetActive(isVisible);
+            resumeButton.gameObject.SetActive(showPause);
+        }
+
+        if (replayButton != null)
+        {
+            replayButton.gameObject.SetActive(showGameOver);
+        }
+
+        if (pausedImage != null)
+        {
+            pausedImage.SetActive(showPause);
+        }
+
+        if (gameOverImage != null)
+        {
+            gameOverImage.SetActive(showGameOver);
         }
     }
 
@@ -237,6 +273,7 @@ public class GameHandler : MonoBehaviour
     private void RegisterButtons()
     {
         BindButton(resumeButton, ResumeGame);
+        BindButton(replayButton, ReplayGame);
         BindButton(pauseMainMenuButton, ReturnToMainMenu);
         BindButton(pauseExitButton, QuitGame);
         BindButton(gameStartButton, StartGame);
