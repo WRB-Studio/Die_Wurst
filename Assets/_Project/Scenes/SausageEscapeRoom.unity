@@ -3120,11 +3120,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19ac463df6e1de14fbad731ca2cc1945, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SausageChainController
-  segmentSpacing: 0.2
+  segmentSpacing: 0.4
   segmentYOffset: 0
   followSmoothness: 6
-  laneFollowSmoothness: 0.08
-  laneFollowDelayPerSegment: 0.025
+  laneFollowSmoothness: 0.04
+  laneFollowDelayPerSegment: 0.015
   joinDuration: 0.25
   joinArcHeight: 0.35
   grinderDropX: -3.5
