@@ -103,6 +103,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
     - target: {fileID: 919132149155446097, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
       propertyPath: m_Name
       value: SM_ConveyerBelt (1)
@@ -177,6 +181,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
     - target: {fileID: 919132149155446097, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
       propertyPath: m_Name
       value: SM_ConveyerBelt (6)
@@ -251,6 +259,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
     - target: {fileID: 919132149155446097, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
       propertyPath: m_Name
       value: SM_ConveyerBelt (4)
@@ -325,6 +337,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: a64a5f39e57cd294e80724f285fe5d8b, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a5d755c3b910f9c4f934d8b0814b2da2, type: 2}
     - target: {fileID: 919132149155446097, guid: a64a5f39e57cd294e80724f285fe5d8b, type: 3}
       propertyPath: m_Name
       value: SM_ConveyerBelt_End
@@ -473,6 +489,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: a64a5f39e57cd294e80724f285fe5d8b, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: caaf5207ba1ecad499ba9a2137e8bc11, type: 2}
     - target: {fileID: 919132149155446097, guid: a64a5f39e57cd294e80724f285fe5d8b, type: 3}
       propertyPath: m_Name
       value: SM_ConveyerBelt_End (1)
@@ -547,6 +567,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
     - target: {fileID: 919132149155446097, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
       propertyPath: m_Name
       value: SM_ConveyerBelt (8)
@@ -621,6 +645,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
     - target: {fileID: 919132149155446097, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
       propertyPath: m_Name
       value: SM_ConveyerBelt (5)
@@ -695,6 +723,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
     - target: {fileID: 919132149155446097, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
       propertyPath: m_Name
       value: SM_ConveyerBelt (3)
@@ -769,6 +801,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
     - target: {fileID: 919132149155446097, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
       propertyPath: m_Name
       value: SM_ConveyerBelt
@@ -843,6 +879,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
+    - target: {fileID: -7511558181221131132, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
     - target: {fileID: 919132149155446097, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
       propertyPath: m_Name
       value: SM_ConveyerBelt (2)
@@ -917,6 +961,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
     - target: {fileID: 919132149155446097, guid: c7b3311c52fca2e45af31c94578eb0b9, type: 3}
       propertyPath: m_Name
       value: SM_ConveyerBelt (7)
