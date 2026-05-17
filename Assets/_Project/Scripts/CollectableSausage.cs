@@ -5,6 +5,7 @@ public class CollectableSausage : MonoBehaviour
     [SerializeField] private bool disableColliderOnCollect = true;
     [SerializeField] private bool forceTriggerCollider = true;
     [SerializeField] private bool addKinematicRigidbodyIfMissing = true;
+    [SerializeField] private float releaseBackwardOffset = 1f;
 
     private Collider cachedCollider;
     private Rigidbody cachedRigidbody;
@@ -83,6 +84,50 @@ public class CollectableSausage : MonoBehaviour
         }
 
         chainController.AddSegment(transform);
+    }
+
+    public void ReleaseFromChain(Transform chainRoot)
+    {
+        isCollected = false;
+
+        if (cachedCollider != null)
+        {
+            cachedCollider.enabled = true;
+
+            if (forceTriggerCollider)
+            {
+                cachedCollider.isTrigger = true;
+            }
+        }
+
+        if (cachedRigidbody != null)
+        {
+            cachedRigidbody.linearVelocity = Vector3.zero;
+            cachedRigidbody.angularVelocity = Vector3.zero;
+            cachedRigidbody.isKinematic = true;
+            cachedRigidbody.useGravity = false;
+        }
+
+        if (laneThrownObject == null)
+        {
+            laneThrownObject = gameObject.AddComponent<LaneThrownObject>();
+        }
+
+        laneThrownObject.enabled = true;
+
+        Vector3 releasePosition = transform.position;
+
+        if (chainRoot != null)
+        {
+            releasePosition += -chainRoot.forward * releaseBackwardOffset;
+        }
+        else
+        {
+            releasePosition += Vector3.left * releaseBackwardOffset;
+        }
+
+        transform.position = releasePosition;
+        laneThrownObject.ResumeOnLane(releasePosition);
     }
 
     private SausageChainController GetOrCreateChainController(Collider other)
