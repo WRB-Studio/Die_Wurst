@@ -8828,7 +8828,7 @@ MonoBehaviour:
   hitPenalty: 100
   timeScorePerSecond: 50
   startThrowInterval: 1.1
-  endThrowInterval: 0.01
+  endThrowInterval: 0.3
   throwIntervalCurve:
     serializedVersion: 2
     m_Curve:
@@ -8855,7 +8855,42 @@ MonoBehaviour:
     m_RotationOrder: 4
   throwIntervalCurveDuration: 60
   throwIntervalRandomOffset: 0.2
-  conveyorSpeed: 1
+  startConveyorSpeed: 1
+  endConveyorSpeed: 6
+  conveyorSpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.018552877
+      outSlope: 0.018552877
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.64166665
+    - serializedVersion: 3
+      time: 0.48567572
+      value: 0.10204108
+      inSlope: 0.56667054
+      outSlope: 0.56667054
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.28709045
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  conveyorSpeedCurveDuration: 180
   conveyorMaterialSpeedFactor: 0.5
   conveyorScrollingMaterial: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
   conveyorScrollingMaterialInverted: {fileID: 2100000, guid: ba1a63067b3f6f7459246592007dd546, type: 2}

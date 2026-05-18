@@ -126,6 +126,11 @@ public class LaneThrownObject : MonoBehaviour
 
     private void MoveOnLane()
     {
+        if (GameHandler.Instance != null)
+        {
+            conveyorSpeed = GameHandler.Instance.GetConveyorSpeed();
+        }
+
         Vector3 position = transform.position;
         position.x -= conveyorSpeed * Time.deltaTime;
         transform.position = position;
