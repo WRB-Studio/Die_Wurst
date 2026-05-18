@@ -11,6 +11,7 @@ public class GameHandler : MonoBehaviour
     public static GameHandler Instance { get; private set; }
 
     private static bool skipMainMenuOnNextLoad;
+    private static readonly int DirectionPropertyId = Shader.PropertyToID("_direction");
 
     [Header("UI")]
     [SerializeField] private GameObject pauseMenu;
@@ -50,6 +51,9 @@ public class GameHandler : MonoBehaviour
 
     [Header("Conveyor")]
     [SerializeField] private float conveyorSpeed = 3f;
+    [SerializeField] private float conveyorMaterialSpeedFactor = 1f;
+    [SerializeField] private Material conveyorScrollingMaterial;
+    [SerializeField] private Material conveyorScrollingMaterialInverted;
 
     private bool isPaused;
     private bool isGameOver;
@@ -70,6 +74,7 @@ public class GameHandler : MonoBehaviour
 
         EnsureEventSystemExists();
         Instance = this;
+        ApplyConveyorMaterialSettings();
         Time.timeScale = 1f;
         RegisterButtons();
     }
@@ -285,6 +290,25 @@ public class GameHandler : MonoBehaviour
         return Mathf.Max(0f, conveyorSpeed);
     }
 
+    private void ApplyConveyorMaterialSettings()
+    {
+        float speed = GetConveyorSpeed() * conveyorMaterialSpeedFactor;
+        SetConveyorMaterialDirection(conveyorScrollingMaterial, -speed);
+        SetConveyorMaterialDirection(conveyorScrollingMaterialInverted, speed);
+    }
+
+    private void SetConveyorMaterialDirection(Material material, float directionX)
+    {
+        if (material == null)
+        {
+            return;
+        }
+
+        Vector4 direction = material.GetVector(DirectionPropertyId);
+        direction.x = directionX;
+        material.SetVector(DirectionPropertyId, direction);
+    }
+
     private void TriggerGameOver()
     {
         isGameOver = true;
@@ -480,6 +504,8 @@ public class GameHandler : MonoBehaviour
         throwIntervalCurveDuration = Mathf.Max(0f, throwIntervalCurveDuration);
         throwIntervalRandomOffset = Mathf.Max(0f, throwIntervalRandomOffset);
         conveyorSpeed = Mathf.Max(0f, conveyorSpeed);
+        conveyorMaterialSpeedFactor = Mathf.Max(0f, conveyorMaterialSpeedFactor);
+        ApplyConveyorMaterialSettings();
 
         if (throwIntervalCurve == null || throwIntervalCurve.length == 0)
         {
