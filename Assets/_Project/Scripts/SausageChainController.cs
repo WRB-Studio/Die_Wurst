@@ -128,7 +128,6 @@ public class SausageChainController : MonoBehaviour
 
             Transform leader = i == 0 ? transform : collectedSegments[i - 1].Transform;
             Vector3 targetPosition = GetTargetPositionBehindLeader(leader);
-            targetPosition.y += segmentYOffset;
 
             if (segmentData.IsJoining)
             {
@@ -149,7 +148,7 @@ public class SausageChainController : MonoBehaviour
     private Vector3 GetTargetPositionBehindLeader(Transform leader)
     {
         Vector3 targetPosition = leader.position + Vector3.left * segmentSpacing;
-        targetPosition.y = leader.position.y;
+        targetPosition.y = transform.position.y + segmentYOffset;
         return targetPosition;
     }
 
