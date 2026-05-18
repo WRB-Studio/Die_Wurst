@@ -20,7 +20,7 @@ Jam-Thema: **Verbindung**
 Kurzfassung:
 Zu viele Wuerste. Zu wenig Sicherheit. Genau richtig.
 
-![Running sausage](Assets/_Project/Art/run.png)
+<img src="Assets/_Project/Art/run.png" alt="Running sausage" width="200">
 
 ## EN
 
