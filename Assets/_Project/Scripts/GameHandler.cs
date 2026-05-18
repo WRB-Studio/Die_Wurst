@@ -41,6 +41,13 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private int hitPenalty = 50;
     [SerializeField] private int timeScorePerSecond = 10;
 
+    [Header("Difficulty")]
+    [SerializeField] private float startThrowInterval = 1.2f;
+    [SerializeField] private float endThrowInterval = 0.4f;
+    [SerializeField] private AnimationCurve throwIntervalCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+    [SerializeField] private float throwIntervalCurveDuration = 60f;
+    [SerializeField] private float throwIntervalRandomOffset = 0.2f;
+
     private bool isPaused;
     private bool isGameOver;
     private bool isMainMenuOpen;
@@ -252,6 +259,24 @@ public class GameHandler : MonoBehaviour
         OpenMainMenu();
     }
 
+    public float GetCurrentChefThrowInterval()
+    {
+        if (throwIntervalCurveDuration <= 0f)
+        {
+            return Mathf.Max(0.01f, endThrowInterval);
+        }
+
+        float normalizedTime = Mathf.Clamp01(elapsedGameTime / throwIntervalCurveDuration);
+        float curveValue = Mathf.Clamp01(throwIntervalCurve.Evaluate(normalizedTime));
+        float throwInterval = Mathf.Lerp(startThrowInterval, endThrowInterval, curveValue);
+        return Mathf.Max(0.01f, throwInterval);
+    }
+
+    public float GetChefThrowRandomOffset()
+    {
+        return Mathf.Max(0f, throwIntervalRandomOffset);
+    }
+
     private void TriggerGameOver()
     {
         isGameOver = true;
@@ -438,5 +463,18 @@ public class GameHandler : MonoBehaviour
 
         button.onClick.RemoveListener(action);
         button.onClick.AddListener(action);
+    }
+
+    private void OnValidate()
+    {
+        startThrowInterval = Mathf.Max(0.01f, startThrowInterval);
+        endThrowInterval = Mathf.Max(0.01f, endThrowInterval);
+        throwIntervalCurveDuration = Mathf.Max(0f, throwIntervalCurveDuration);
+        throwIntervalRandomOffset = Mathf.Max(0f, throwIntervalRandomOffset);
+
+        if (throwIntervalCurve == null || throwIntervalCurve.length == 0)
+        {
+            throwIntervalCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+        }
     }
 }

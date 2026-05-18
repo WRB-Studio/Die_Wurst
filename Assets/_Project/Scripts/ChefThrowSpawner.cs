@@ -16,10 +16,6 @@ public class ChefThrowSpawner : MonoBehaviour
     [SerializeField] private string idleAnimationStateName = "Metzger Animation";
     [SerializeField] private string throwAnimationStateName = "werfen";
 
-    [Header("Timing")]
-    [SerializeField] private float minThrowInterval = 0.4f;
-    [SerializeField] private float maxThrowInterval = 1.2f;
-
     [Header("Throw")]
     [SerializeField] private float minTargetXOffset = -1f;
     [SerializeField] private float maxTargetXOffset = 1f;
@@ -39,6 +35,8 @@ public class ChefThrowSpawner : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private bool drawDebugGizmos = true;
     [SerializeField] private bool logThrowSpawn = false;
+    [SerializeField] private float fallbackThrowInterval = 1.2f;
+    [SerializeField] private float fallbackThrowIntervalRandomOffset = 0.2f;
 
     private float throwTimer;
     private bool wasWaitingLastFrame;
@@ -311,7 +309,31 @@ public class ChefThrowSpawner : MonoBehaviour
 
     private void ResetThrowTimer()
     {
+        float currentThrowInterval = GetCurrentThrowInterval();
+        float throwIntervalRandomOffset = GetThrowIntervalRandomOffset();
+        float minThrowInterval = Mathf.Max(0.01f, currentThrowInterval - throwIntervalRandomOffset);
+        float maxThrowInterval = Mathf.Max(minThrowInterval, currentThrowInterval + throwIntervalRandomOffset);
         throwTimer = Random.Range(minThrowInterval, maxThrowInterval);
+    }
+
+    private float GetCurrentThrowInterval()
+    {
+        if (GameHandler.Instance != null)
+        {
+            return GameHandler.Instance.GetCurrentChefThrowInterval();
+        }
+
+        return Mathf.Max(0.01f, fallbackThrowInterval);
+    }
+
+    private float GetThrowIntervalRandomOffset()
+    {
+        if (GameHandler.Instance != null)
+        {
+            return GameHandler.Instance.GetChefThrowRandomOffset();
+        }
+
+        return Mathf.Max(0f, fallbackThrowIntervalRandomOffset);
     }
 
     private void PlayThrowAnimation()
@@ -393,6 +415,9 @@ public class ChefThrowSpawner : MonoBehaviour
 
     private void OnValidate()
     {
+        fallbackThrowInterval = Mathf.Max(0.01f, fallbackThrowInterval);
+        fallbackThrowIntervalRandomOffset = Mathf.Max(0f, fallbackThrowIntervalRandomOffset);
+
 #if UNITY_EDITOR
         RefreshAutoThrowSprites();
 #endif

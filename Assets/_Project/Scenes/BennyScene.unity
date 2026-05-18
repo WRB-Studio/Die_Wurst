@@ -3361,8 +3361,6 @@ MonoBehaviour:
   - {fileID: -601128572, guid: 6d6d0182cce3d6d45b05bd90b759d94f, type: 3}
   idleAnimationStateName: Metzger Animation
   throwAnimationStateName: werfen
-  minThrowInterval: 0.4
-  maxThrowInterval: 1.2
   minTargetXOffset: 7
   maxTargetXOffset: 9
   targetYOffset: 0.8
@@ -3375,6 +3373,8 @@ MonoBehaviour:
   shredderFallSpeed: 5
   drawDebugGizmos: 1
   logThrowSpawn: 0
+  fallbackThrowInterval: 1.2
+  fallbackThrowIntervalRandomOffset: 0.2
 --- !u!114 &1247259582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5883,6 +5883,34 @@ MonoBehaviour:
   collectScore: 1000
   hitPenalty: 100
   timeScorePerSecond: 50
+  startThrowInterval: 1.2
+  endThrowInterval: 0.4
+  throwIntervalCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  throwIntervalCurveDuration: 60
+  throwIntervalRandomOffset: 0.2
 --- !u!1 &1727836082
 GameObject:
   m_ObjectHideFlags: 0
