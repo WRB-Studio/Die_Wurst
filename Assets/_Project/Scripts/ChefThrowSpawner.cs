@@ -8,6 +8,9 @@ public class ChefThrowSpawner : MonoBehaviour
     [SerializeField] private Transform throwOrigin;
     [SerializeField] private Transform[] laneTargets;
     [SerializeField] private GameObject[] throwablePrefabs;
+    [SerializeField] private GameObject defaultThrowablePrefab;
+    [SerializeField] private Texture2D throwSpriteSheet;
+    [SerializeField] private Sprite[] autoThrowSprites;
 
     [Header("Animation")]
     [SerializeField] private string idleAnimationStateName = "Metzger Animation";
@@ -83,7 +86,7 @@ public class ChefThrowSpawner : MonoBehaviour
             return;
         }
 
-        if (laneTargets == null || laneTargets.Length == 0 || throwablePrefabs == null || throwablePrefabs.Length == 0)
+        if (laneTargets == null || laneTargets.Length == 0 || !HasAnyThrowableSource())
         {
             return;
         }
@@ -101,21 +104,26 @@ public class ChefThrowSpawner : MonoBehaviour
 
     private void ThrowRandomObject()
     {
-        GameObject prefab = GetRandomPrefab();
         Transform laneTarget = GetRandomLaneTarget();
 
-        if (prefab == null || laneTarget == null)
+        if (laneTarget == null)
+        {
+            return;
+        }
+
+        GameObject instance = CreateRandomThrowableInstance();
+
+        if (instance == null)
         {
             return;
         }
 
         Transform currentThrowOrigin = GetThrowOrigin();
         Vector3 spawnPosition = currentThrowOrigin.position;
-        Quaternion spawnRotation = prefab.transform.rotation;
-        GameObject instance = Instantiate(prefab);
-        instance.transform.SetPositionAndRotation(spawnPosition, spawnRotation);
         Vector3 targetPosition = GetTargetPosition(laneTarget);
         LaneThrownObject laneThrownObject = instance.GetComponent<LaneThrownObject>();
+
+        instance.transform.SetPositionAndRotation(spawnPosition, instance.transform.rotation);
 
         if (laneThrownObject == null)
         {
@@ -150,10 +158,149 @@ public class ChefThrowSpawner : MonoBehaviour
         return targetPosition;
     }
 
-    private GameObject GetRandomPrefab()
+    private bool HasAnyThrowableSource()
     {
-        int index = Random.Range(0, throwablePrefabs.Length);
-        return throwablePrefabs[index];
+        return GetValidPrefabCount() > 0 || (defaultThrowablePrefab != null && GetValidAutoSpriteCount() > 0);
+    }
+
+    private GameObject CreateRandomThrowableInstance()
+    {
+        int prefabCount = GetValidPrefabCount();
+        int spriteCount = defaultThrowablePrefab != null ? GetValidAutoSpriteCount() : 0;
+        int totalCount = prefabCount + spriteCount;
+
+        if (totalCount == 0)
+        {
+            return null;
+        }
+
+        int selectionIndex = Random.Range(0, totalCount);
+
+        if (selectionIndex < prefabCount)
+        {
+            GameObject prefab = GetValidPrefabAt(selectionIndex);
+            return prefab != null ? Instantiate(prefab) : null;
+        }
+
+        return CreateSpriteBasedThrowable(selectionIndex - prefabCount);
+    }
+
+    private GameObject CreateSpriteBasedThrowable(int spriteIndex)
+    {
+        Sprite sprite = GetValidAutoSpriteAt(spriteIndex);
+
+        if (defaultThrowablePrefab == null || sprite == null)
+        {
+            return null;
+        }
+
+        GameObject instance = Instantiate(defaultThrowablePrefab);
+        SpriteRenderer spriteRenderer = instance.GetComponentInChildren<SpriteRenderer>();
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sprite = sprite;
+        }
+
+        return instance;
+    }
+
+    private int GetValidPrefabCount()
+    {
+        if (throwablePrefabs == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+
+        for (int i = 0; i < throwablePrefabs.Length; i++)
+        {
+            if (throwablePrefabs[i] != null)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private GameObject GetValidPrefabAt(int index)
+    {
+        if (throwablePrefabs == null || index < 0)
+        {
+            return null;
+        }
+
+        int currentIndex = 0;
+
+        for (int i = 0; i < throwablePrefabs.Length; i++)
+        {
+            GameObject prefab = throwablePrefabs[i];
+
+            if (prefab == null)
+            {
+                continue;
+            }
+
+            if (currentIndex == index)
+            {
+                return prefab;
+            }
+
+            currentIndex++;
+        }
+
+        return null;
+    }
+
+    private int GetValidAutoSpriteCount()
+    {
+        if (autoThrowSprites == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+
+        for (int i = 0; i < autoThrowSprites.Length; i++)
+        {
+            if (autoThrowSprites[i] != null)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private Sprite GetValidAutoSpriteAt(int index)
+    {
+        if (autoThrowSprites == null || index < 0)
+        {
+            return null;
+        }
+
+        int currentIndex = 0;
+
+        for (int i = 0; i < autoThrowSprites.Length; i++)
+        {
+            Sprite sprite = autoThrowSprites[i];
+
+            if (sprite == null)
+            {
+                continue;
+            }
+
+            if (currentIndex == index)
+            {
+                return sprite;
+            }
+
+            currentIndex++;
+        }
+
+        return null;
     }
 
     private Transform GetRandomLaneTarget()
@@ -243,4 +390,49 @@ public class ChefThrowSpawner : MonoBehaviour
             Gizmos.DrawLine(currentThrowOrigin.position, laneTarget.position);
         }
     }
+
+    private void OnValidate()
+    {
+#if UNITY_EDITOR
+        RefreshAutoThrowSprites();
+#endif
+    }
+
+#if UNITY_EDITOR
+    private void RefreshAutoThrowSprites()
+    {
+        if (throwSpriteSheet == null)
+        {
+            autoThrowSprites = null;
+            return;
+        }
+
+        string assetPath = UnityEditor.AssetDatabase.GetAssetPath(throwSpriteSheet);
+        Object[] assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath);
+        int spriteCount = 0;
+
+        for (int i = 0; i < assets.Length; i++)
+        {
+            if (assets[i] is Sprite)
+            {
+                spriteCount++;
+            }
+        }
+
+        Sprite[] sprites = new Sprite[spriteCount];
+        int spriteIndex = 0;
+
+        for (int i = 0; i < assets.Length; i++)
+        {
+            if (assets[i] is Sprite sprite)
+            {
+                sprites[spriteIndex] = sprite;
+                spriteIndex++;
+            }
+        }
+
+        System.Array.Sort(sprites, (left, right) => string.CompareOrdinal(left.name, right.name));
+        autoThrowSprites = sprites;
+    }
+#endif
 }

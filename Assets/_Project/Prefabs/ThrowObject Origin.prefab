@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -7021142396292403022}
   - component: {fileID: -1509660989632063544}
   m_Layer: 0
-  m_Name: ThrowObject 4
+  m_Name: ThrowObject Origin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 3294577712733071579}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.7776, y: 0.5, z: 2.53295}
+  m_LocalPosition: {x: -0.7776, y: 0, z: 2.53295}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -199,7 +199,7 @@ Transform:
   m_GameObject: {fileID: 3297820187353784259}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.2, z: 0}
   m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -252,9 +252,9 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -307202457, guid: e70e9f97347c92f438a060efbb227581, type: 3}
+  m_Sprite: {fileID: -1206410663, guid: e70e9f97347c92f438a060efbb227581, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
