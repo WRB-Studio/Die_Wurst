@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2230550985889917197}
   - component: {fileID: 9195505933535394622}
   m_Layer: 0
-  m_Name: Wurst Animation Deluxe
+  m_Name: Die Wurst
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

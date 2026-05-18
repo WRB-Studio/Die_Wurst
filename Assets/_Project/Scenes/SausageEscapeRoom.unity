@@ -1743,7 +1743,7 @@ MonoBehaviour:
   - {fileID: 460675403}
   - {fileID: 1056253320}
   startLaneIndex: 0
-  laneYOffset: 1
+  laneYOffset: 1.15
   forwardResistanceCurve:
     serializedVersion: 2
     m_Curve:
@@ -5556,7 +5556,7 @@ Transform:
   m_GameObject: {fileID: 1644453425}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.06, y: 0.37, z: 5.402}
+  m_LocalPosition: {x: -5.3, y: 0.37, z: 5.402}
   m_LocalScale: {x: 0.4366207, y: 0.4366207, z: 0.4366207}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6832714805682584208}
   - component: {fileID: 2468202484327792578}
   m_Layer: 5
-  m_Name: Kim
+  m_Name: CreditNameGrp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
