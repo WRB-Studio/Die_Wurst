@@ -4069,7 +4069,6 @@ MonoBehaviour:
   targetYOffset: 0.8
   throwDuration: 1
   throwArcHeight: 2
-  laneMoveSpeed: 3
   destroyAtX: -4
   shredderPullDistance: 0.4
   shredderDropDistance: 2.5
@@ -7227,6 +7226,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   throwIntervalCurveDuration: 60
   throwIntervalRandomOffset: 0.2
+  conveyorSpeed: 3
 --- !u!1001 &2141959210
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -48,6 +48,9 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private float throwIntervalCurveDuration = 60f;
     [SerializeField] private float throwIntervalRandomOffset = 0.2f;
 
+    [Header("Conveyor")]
+    [SerializeField] private float conveyorSpeed = 3f;
+
     private bool isPaused;
     private bool isGameOver;
     private bool isMainMenuOpen;
@@ -277,6 +280,11 @@ public class GameHandler : MonoBehaviour
         return Mathf.Max(0f, throwIntervalRandomOffset);
     }
 
+    public float GetConveyorSpeed()
+    {
+        return Mathf.Max(0f, conveyorSpeed);
+    }
+
     private void TriggerGameOver()
     {
         isGameOver = true;
@@ -471,6 +479,7 @@ public class GameHandler : MonoBehaviour
         endThrowInterval = Mathf.Max(0.01f, endThrowInterval);
         throwIntervalCurveDuration = Mathf.Max(0f, throwIntervalCurveDuration);
         throwIntervalRandomOffset = Mathf.Max(0f, throwIntervalRandomOffset);
+        conveyorSpeed = Mathf.Max(0f, conveyorSpeed);
 
         if (throwIntervalCurve == null || throwIntervalCurve.length == 0)
         {

@@ -24,7 +24,6 @@ public class ChefThrowSpawner : MonoBehaviour
     [SerializeField] private float throwArcHeight = 2f;
 
     [Header("Conveyor")]
-    [SerializeField] private float laneMoveSpeed = 3f;
     [SerializeField] private float destroyAtX = -20f;
 
     [Header("Shredder")]
@@ -136,7 +135,7 @@ public class ChefThrowSpawner : MonoBehaviour
             targetPosition,
             throwDuration,
             throwArcHeight,
-            laneMoveSpeed,
+            GetConveyorSpeed(),
             destroyAtX,
             shredderPullDistance,
             shredderDropDistance,
@@ -334,6 +333,16 @@ public class ChefThrowSpawner : MonoBehaviour
         }
 
         return Mathf.Max(0f, fallbackThrowIntervalRandomOffset);
+    }
+
+    private float GetConveyorSpeed()
+    {
+        if (GameHandler.Instance != null)
+        {
+            return GameHandler.Instance.GetConveyorSpeed();
+        }
+
+        return 0f;
     }
 
     private void PlayThrowAnimation()

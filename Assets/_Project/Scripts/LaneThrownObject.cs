@@ -9,7 +9,7 @@ public class LaneThrownObject : MonoBehaviour
         FallingIntoShredder
     }
 
-    [SerializeField] private float conveyorSpeed = 3f;
+    private float conveyorSpeed;
     [SerializeField] private float destroyX = -20f;
     [SerializeField] private float shredderPullDistance = 0.4f;
     [SerializeField] private float shredderDropDistance = 2.5f;
