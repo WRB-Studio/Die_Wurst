@@ -21,6 +21,11 @@ public class LaneThrownObject : MonoBehaviour
     private float throwDuration;
     private float throwArcHeight;
     private float throwProgress;
+    private bool hasFollowUpThrow;
+    private Vector3 followUpTargetPosition;
+    private float followUpThrowDuration;
+    private float followUpThrowArcHeight;
+    private System.Action onIntermediateThrowComplete;
     private MovementState movementState;
     private Vector3 shredderTargetPosition;
 
@@ -59,6 +64,43 @@ public class LaneThrownObject : MonoBehaviour
             body.angularVelocity = Vector3.zero;
             body.isKinematic = true;
         }
+
+        hasFollowUpThrow = false;
+        onIntermediateThrowComplete = null;
+    }
+
+    public void InitializeWithImpact(
+        Vector3 startPosition,
+        Vector3 impactPosition,
+        Vector3 targetLanePosition,
+        float totalThrowDuration,
+        float targetThrowArcHeight,
+        float laneMoveSpeed,
+        float destroyAtX,
+        float targetShredderPullDistance,
+        float targetShredderDropDistance,
+        float targetShredderFallSpeed,
+        System.Action impactReachedCallback)
+    {
+        float firstThrowDuration = Mathf.Max(0.01f, totalThrowDuration * 0.55f);
+        float secondThrowDuration = Mathf.Max(0.01f, totalThrowDuration - firstThrowDuration);
+
+        Initialize(
+            startPosition,
+            impactPosition,
+            firstThrowDuration,
+            targetThrowArcHeight,
+            laneMoveSpeed,
+            destroyAtX,
+            targetShredderPullDistance,
+            targetShredderDropDistance,
+            targetShredderFallSpeed);
+
+        hasFollowUpThrow = true;
+        followUpTargetPosition = targetLanePosition;
+        followUpThrowDuration = secondThrowDuration;
+        followUpThrowArcHeight = Mathf.Max(0.1f, targetThrowArcHeight * 0.35f);
+        onIntermediateThrowComplete = impactReachedCallback;
     }
 
     public void ResumeOnLane(Vector3 startPosition)
@@ -102,6 +144,12 @@ public class LaneThrownObject : MonoBehaviour
 
         if (throwProgress >= 1f)
         {
+            if (hasFollowUpThrow)
+            {
+                StartFollowUpThrow();
+                return;
+            }
+
             AttachToLane();
             return;
         }
@@ -111,6 +159,25 @@ public class LaneThrownObject : MonoBehaviour
         float arcOffset = 4f * throwArcHeight * progress * (1f - progress);
 
         transform.position = flatPosition + Vector3.up * arcOffset;
+    }
+
+    private void StartFollowUpThrow()
+    {
+        transform.position = lanePosition;
+        onIntermediateThrowComplete?.Invoke();
+
+        throwStartPosition = lanePosition;
+        lanePosition = followUpTargetPosition;
+        throwDuration = followUpThrowDuration;
+        throwArcHeight = followUpThrowArcHeight;
+        throwProgress = 0f;
+        hasFollowUpThrow = false;
+        onIntermediateThrowComplete = null;
+
+        if (body != null)
+        {
+            body.position = throwStartPosition;
+        }
     }
 
     private void AttachToLane()

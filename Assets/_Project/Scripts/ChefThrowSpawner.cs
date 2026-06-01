@@ -127,7 +127,7 @@ public class ChefThrowSpawner : MonoBehaviour
             laneThrownObject = instance.AddComponent<LaneThrownObject>();
         }
 
-        AudioManager.Instance.PlaySFX("sfx_knife", false); 
+        AudioManager.Instance?.PlaySFX("sfx_knife", false);
         PlayThrowAnimation();
 
         laneThrownObject.Initialize(
@@ -145,6 +145,73 @@ public class ChefThrowSpawner : MonoBehaviour
         {
             Debug.Log($"Chef throw spawn from {spawnPosition} to {targetPosition}", this);
         }
+    }
+
+    public bool TryThrowSpecialObjectToWindow(
+        Vector3 impactPosition,
+        int minLaneIndex,
+        int maxLaneIndex,
+        float minLaneXOffset,
+        float maxLaneXOffset,
+        float laneYOffset,
+        System.Action impactReachedCallback)
+    {
+        if (!TryGetLaneTargetPosition(minLaneIndex, maxLaneIndex, minLaneXOffset, maxLaneXOffset, laneYOffset, out Vector3 landingPosition))
+        {
+            return false;
+        }
+
+        return TryThrowSpecialObject(impactPosition, landingPosition, impactReachedCallback);
+    }
+
+    public bool TryThrowSpecialObject(Vector3 impactPosition, Vector3 landingPosition, System.Action impactReachedCallback)
+    {
+        if (!HasAnyThrowableSource())
+        {
+            return false;
+        }
+
+        GameObject instance = CreateRandomThrowableInstance();
+
+        if (instance == null)
+        {
+            return false;
+        }
+
+        Transform currentThrowOrigin = GetThrowOrigin();
+        Vector3 spawnPosition = currentThrowOrigin.position;
+        LaneThrownObject laneThrownObject = instance.GetComponent<LaneThrownObject>();
+
+        instance.transform.SetPositionAndRotation(spawnPosition, instance.transform.rotation);
+
+        if (laneThrownObject == null)
+        {
+            laneThrownObject = instance.AddComponent<LaneThrownObject>();
+        }
+
+        AudioManager.Instance?.PlaySFX("sfx_knife", false);
+        PlayThrowAnimation();
+
+        laneThrownObject.InitializeWithImpact(
+            spawnPosition,
+            impactPosition,
+            landingPosition,
+            throwDuration,
+            throwArcHeight,
+            GetConveyorSpeed(),
+            destroyAtX,
+            shredderPullDistance,
+            shredderDropDistance,
+            shredderFallSpeed,
+            impactReachedCallback);
+
+        if (logThrowSpawn)
+        {
+            Debug.Log($"Chef special throw spawn from {spawnPosition} to window {impactPosition} and lane {landingPosition}", this);
+        }
+
+        ResetThrowTimer();
+        return true;
     }
 
     private Vector3 GetTargetPosition(Transform laneTarget)
@@ -304,6 +371,39 @@ public class ChefThrowSpawner : MonoBehaviour
     {
         int index = Random.Range(0, laneTargets.Length);
         return laneTargets[index];
+    }
+
+    private bool TryGetLaneTargetPosition(
+        int minLaneIndex,
+        int maxLaneIndex,
+        float minLaneXOffset,
+        float maxLaneXOffset,
+        float laneYOffsetOverride,
+        out Vector3 targetPosition)
+    {
+        targetPosition = Vector3.zero;
+
+        if (laneTargets == null || laneTargets.Length == 0)
+        {
+            return false;
+        }
+
+        int clampedMinIndex = Mathf.Clamp(minLaneIndex, 0, laneTargets.Length - 1);
+        int clampedMaxIndex = Mathf.Clamp(maxLaneIndex, clampedMinIndex, laneTargets.Length - 1);
+        int laneIndex = Random.Range(clampedMinIndex, clampedMaxIndex + 1);
+        Transform laneTarget = laneTargets[laneIndex];
+
+        if (laneTarget == null)
+        {
+            return false;
+        }
+
+        float minOffset = Mathf.Min(minLaneXOffset, maxLaneXOffset);
+        float maxOffset = Mathf.Max(minLaneXOffset, maxLaneXOffset);
+        targetPosition = laneTarget.position;
+        targetPosition.x += Random.Range(minOffset, maxOffset);
+        targetPosition.y += laneYOffsetOverride;
+        return true;
     }
 
     private void ResetThrowTimer()

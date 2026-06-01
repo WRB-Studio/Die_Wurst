@@ -28,6 +28,12 @@ public class AudioManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
+        if (transform.parent != null)
+        {
+            transform.SetParent(null, true);
+        }
+
         Instance = this;
         DontDestroyOnLoad(gameObject);
 

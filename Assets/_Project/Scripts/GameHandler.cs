@@ -164,6 +164,16 @@ public class GameHandler : MonoBehaviour
         TriggerGameOver();
     }
 
+    public void ShowGameOver()
+    {
+        if (isGameOver)
+        {
+            return;
+        }
+
+        TriggerGameOver();
+    }
+
     public void RegisterCollectedSausage()
     {
         if (isGameOver)
