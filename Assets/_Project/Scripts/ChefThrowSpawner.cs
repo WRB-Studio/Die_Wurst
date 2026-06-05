@@ -8,6 +8,7 @@ public class ChefThrowSpawner : MonoBehaviour
     [SerializeField] private Transform throwOrigin;
     [SerializeField] private Transform[] laneTargets;
     [SerializeField] private GameObject[] throwablePrefabs;
+    [SerializeField] private GameObject extraSausagePrefab;
     [SerializeField] private GameObject defaultThrowablePrefab;
     [SerializeField] private Texture2D throwSpriteSheet;
     [SerializeField] private Sprite[] autoThrowSprites;
@@ -22,6 +23,7 @@ public class ChefThrowSpawner : MonoBehaviour
     [SerializeField] private float targetYOffset = 0f;
     [SerializeField] private float throwDuration = 0.45f;
     [SerializeField] private float throwArcHeight = 2f;
+    [SerializeField] private float extraSausageThrowChance = 0.25f;
 
     [Header("Conveyor")]
     [SerializeField] private float destroyAtX = -20f;
@@ -229,6 +231,11 @@ public class ChefThrowSpawner : MonoBehaviour
 
     private GameObject CreateRandomThrowableInstance()
     {
+        if (ShouldThrowExtraSausage())
+        {
+            return Instantiate(extraSausagePrefab);
+        }
+
         int prefabCount = GetValidPrefabCount();
         int spriteCount = defaultThrowablePrefab != null ? GetValidAutoSpriteCount() : 0;
         int totalCount = prefabCount + spriteCount;
@@ -247,6 +254,16 @@ public class ChefThrowSpawner : MonoBehaviour
         }
 
         return CreateSpriteBasedThrowable(selectionIndex - prefabCount);
+    }
+
+    private bool ShouldThrowExtraSausage()
+    {
+        if (extraSausagePrefab == null)
+        {
+            return false;
+        }
+
+        return Random.value < extraSausageThrowChance;
     }
 
     private GameObject CreateSpriteBasedThrowable(int spriteIndex)
@@ -526,6 +543,7 @@ public class ChefThrowSpawner : MonoBehaviour
     {
         fallbackThrowInterval = Mathf.Max(0.01f, fallbackThrowInterval);
         fallbackThrowIntervalRandomOffset = Mathf.Max(0f, fallbackThrowIntervalRandomOffset);
+        extraSausageThrowChance = Mathf.Clamp01(extraSausageThrowChance);
 
 #if UNITY_EDITOR
         RefreshAutoThrowSprites();

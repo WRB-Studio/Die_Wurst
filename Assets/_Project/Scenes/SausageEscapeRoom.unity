@@ -5891,15 +5891,8 @@ MonoBehaviour:
   - {fileID: 1637237140}
   - {fileID: 1531114267}
   - {fileID: 825167099}
-  throwablePrefabs:
-  - {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
-  - {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
-  - {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
-  - {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
-  - {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
-  - {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
-  - {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
-  - {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
+  throwablePrefabs: []
+  extraSausagePrefab: {fileID: 1144146144742523438, guid: 23c4c23e05844834db229d407f91358b, type: 3}
   defaultThrowablePrefab: {fileID: 3294577712733071579, guid: e3b0ae7e4fc1fef46923783fc0462a1a, type: 3}
   throwSpriteSheet: {fileID: 2800000, guid: 6d6d0182cce3d6d45b05bd90b759d94f, type: 3}
   autoThrowSprites:
@@ -5934,6 +5927,7 @@ MonoBehaviour:
   targetYOffset: 0.8
   throwDuration: 1
   throwArcHeight: 2
+  extraSausageThrowChance: 0.25
   destroyAtX: -4
   shredderPullDistance: 0.4
   shredderDropDistance: 2.5
