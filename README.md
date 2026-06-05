@@ -1,4 +1,4 @@
-# Die Wurst
+# Meat me Outside
 
 ![Die Wurst Splash Screen](Assets/_Project/Art/SplashScreen.png)
 
@@ -8,7 +8,7 @@
 
 ## DE
 
-**Die Wurst** ist ein chaotisches Arcade-Spiel aus einem 48-Stunden-Gamejam.
+**Meat me Outside** ist ein chaotisches Arcade-Spiel aus einem 48-Stunden-Gamejam.
 
 Du spielst ein Wuerstchen auf dem Fliessband, rennst dem Fleischwolf davon, weichst herumfliegendem Unsinn aus und sammelst andere Wuerstchen zu einer immer fragwuerdigeren Kette ein.
 
@@ -28,7 +28,7 @@ Zu viele Wuerste. Zu wenig Sicherheit. Genau richtig.
 
 ## EN
 
-**Die Wurst** is a chaotic arcade game made during a 48-hour game jam.
+**Meat me Outside** is a chaotic arcade game made during a 48-hour game jam.
 
 You play as a sausage on a conveyor belt, run from the meat grinder, dodge airborne nonsense, and collect other sausages into an increasingly questionable chain.
 
