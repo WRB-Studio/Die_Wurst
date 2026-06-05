@@ -28,10 +28,12 @@ public class LaneThrownObject : MonoBehaviour
     private System.Action onIntermediateThrowComplete;
     private MovementState movementState;
     private Vector3 shredderTargetPosition;
+    private CollectableSausage collectableSausage;
 
     private void Awake()
     {
         body = GetComponent<Rigidbody>();
+        collectableSausage = GetComponent<CollectableSausage>();
     }
 
     public void Initialize(
@@ -212,6 +214,12 @@ public class LaneThrownObject : MonoBehaviour
     {
         movementState = MovementState.FallingIntoShredder;
         shredderTargetPosition = transform.position + new Vector3(-shredderPullDistance, -shredderDropDistance, 0f);
+        AudioManager.Instance?.PlaySFX("sfx_grinder", false, volume: 0.7f);
+
+        if (collectableSausage != null)
+        {
+            AudioManager.Instance?.PlaySFX("sfx_ouch_short", false, volume: 0.7f);
+        }
     }
 
     private void UpdateShredderFall()

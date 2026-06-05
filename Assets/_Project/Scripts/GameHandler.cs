@@ -205,13 +205,13 @@ public class GameHandler : MonoBehaviour
             return;
         }
 
-        RegisterHit();
-
         if (playerChain.ReleaseLastSegment())
         {
+            RegisterHit("sfx_roblox_oof_short");
             return;
         }
 
+        RegisterHit("sfx_ouch_short");
         TriggerGameOver();
     }
 
@@ -249,11 +249,16 @@ public class GameHandler : MonoBehaviour
         RecalculateScore();
     }
 
-    public void RegisterHit()
+    public void RegisterHit(string soundName = "sfx_roblox_oof_short")
     {
         if (isGameOver)
         {
             return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(soundName))
+        {
+            AudioManager.Instance?.PlaySFX(soundName, false);
         }
 
         hitCount++;

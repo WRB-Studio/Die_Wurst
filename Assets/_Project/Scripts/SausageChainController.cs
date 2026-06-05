@@ -221,8 +221,6 @@ public class SausageChainController : MonoBehaviour
         {
             collectableSausage.ReleaseFromChain(transform);
         }
-        AudioManager.Instance.PlaySFX("sfx_ouch_short", false, volume: 0.7f);
-        AudioManager.Instance.PlaySFX("sfx_grinder", false, volume: 0.7f);
         ApplyChainBonus();
     }
 
