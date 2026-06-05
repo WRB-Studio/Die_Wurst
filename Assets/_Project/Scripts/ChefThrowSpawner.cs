@@ -127,7 +127,7 @@ public class ChefThrowSpawner : MonoBehaviour
             laneThrownObject = instance.AddComponent<LaneThrownObject>();
         }
 
-        AudioManager.Instance?.PlaySFX("sfx_knife", false);
+        AudioManager.Instance?.PlayKnifeSfx();
         PlayThrowAnimation();
 
         laneThrownObject.Initialize(
@@ -189,7 +189,7 @@ public class ChefThrowSpawner : MonoBehaviour
             laneThrownObject = instance.AddComponent<LaneThrownObject>();
         }
 
-        AudioManager.Instance?.PlaySFX("sfx_knife", false);
+        AudioManager.Instance?.PlayKnifeSfx();
         PlayThrowAnimation();
 
         laneThrownObject.InitializeWithImpact(

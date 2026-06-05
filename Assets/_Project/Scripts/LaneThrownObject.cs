@@ -214,11 +214,11 @@ public class LaneThrownObject : MonoBehaviour
     {
         movementState = MovementState.FallingIntoShredder;
         shredderTargetPosition = transform.position + new Vector3(-shredderPullDistance, -shredderDropDistance, 0f);
-        AudioManager.Instance?.PlaySFX("sfx_grinder", false, volume: 0.7f);
+        AudioManager.Instance?.PlayGrinderSfx(0.7f);
 
         if (collectableSausage != null)
         {
-            AudioManager.Instance?.PlaySFX("sfx_ouch_short", false, volume: 0.7f);
+            AudioManager.Instance?.PlayHitOuchSfx(0.7f);
         }
     }
 

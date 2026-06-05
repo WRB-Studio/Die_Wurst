@@ -46,8 +46,8 @@ public class EnemyThrownObject : MonoBehaviour
         }
         else
         {
-            AudioManager.Instance.PlaySFX("sfx_roblox_oof_short", false);
-            AudioManager.Instance.PlaySFXBlocking("sfx_grinder", volume: 1f);
+            AudioManager.Instance?.PlayHitOofSfx();
+            AudioManager.Instance?.PlayGrinderSfxBlocking();
             chainController.ReleaseLastSegment();
         }
 

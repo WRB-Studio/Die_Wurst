@@ -9500,23 +9500,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   musicSource: {fileID: 397796098}
   sfxSource: {fileID: 1135842706}
-  startMusic: {fileID: 8300000, guid: cb3bc85905332492f87566e4adb21604, type: 3}
-  musicVolume: 0.2
+  gameplayMusic: {fileID: 8300000, guid: 166596b1d0abc8d4c9e92a5012314bb1, type: 3}
+  mainMenuMusic: {fileID: 8300000, guid: ba30b5936486dc54cbb46620a0e55e37, type: 3}
+  gameOverMusic: {fileID: 8300000, guid: 9fc0ca6ad5fb83b4a96c5ed9405e0109, type: 3}
+  knifeSfx: {fileID: 8300000, guid: a45df466556d54d08849f48133569e1e, type: 3}
+  jumpSfx: {fileID: 8300000, guid: 242f599574f962341b0708c0037d839a, type: 3}
+  yaySfx: {fileID: 8300000, guid: 5feb7e294753643a8a526cc7996bd96d, type: 3}
+  hitOofSfx: {fileID: 8300000, guid: 76804739256314d4fb5bac256c043029, type: 3}
+  hitOuchSfx: {fileID: 8300000, guid: 74e12d6e0c0e647c8a1d2c883d4095b4, type: 3}
+  grinderSfx: {fileID: 8300000, guid: c6b25aa39ef208b47b6492c90663e44c, type: 3}
+  musicVolume: 1
   sfxVolume: 1
-  soundClips:
-  - {fileID: 8300000, guid: cb3bc85905332492f87566e4adb21604, type: 3}
-  - {fileID: 8300000, guid: 4364f79bf80564151837a8f2af99171d, type: 3}
-  - {fileID: 8300000, guid: a45df466556d54d08849f48133569e1e, type: 3}
-  - {fileID: 8300000, guid: 740891789b2d441058a34628ba29ca0e, type: 3}
-  - {fileID: 8300000, guid: 74e12d6e0c0e647c8a1d2c883d4095b4, type: 3}
-  - {fileID: 8300000, guid: 048aa6bf612424281a51d080d329df50, type: 3}
-  - {fileID: 8300000, guid: 3274bc51c787340f0b18fd15172430fa, type: 3}
-  - {fileID: 8300000, guid: 5feb7e294753643a8a526cc7996bd96d, type: 3}
-  - {fileID: 8300000, guid: 812fc9bbab23143fbb1d52ceb3cf23fc, type: 3}
-  - {fileID: 8300000, guid: 76804739256314d4fb5bac256c043029, type: 3}
-  - {fileID: 8300000, guid: 0f64838253e7948ca908d2ed182fe84d, type: 3}
-  - {fileID: 8300000, guid: f9f94dd35d36e4864be202a560942a26, type: 3}
-  - {fileID: 8300000, guid: 2c7a108641c1342e38b50cd6509a83d2, type: 3}
 --- !u!1 &2070606469
 GameObject:
   m_ObjectHideFlags: 0
@@ -10170,7 +10164,6 @@ MonoBehaviour:
   timeScorePerSecond: 50
   escapeScore: 500
   rescuedSausageScore: 100
-  gameOverMusic: {fileID: 8300000, guid: 804502ea8a93a6447b7cd65e7a7e539e, type: 3}
   startThrowInterval: 1.1
   endThrowInterval: 0.3
   throwIntervalCurve:

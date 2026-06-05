@@ -75,7 +75,7 @@ public class SausageChainController : MonoBehaviour
             JoinElapsed = 0f
         });
 
-        AudioManager.Instance.PlaySFX("sfx_yay", false);
+        AudioManager.Instance?.PlayYaySfx();
 
         ApplyChainBonus();
     }

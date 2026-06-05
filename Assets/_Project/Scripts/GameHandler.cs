@@ -62,9 +62,6 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private int escapeScore = 500;
     [SerializeField] private int rescuedSausageScore = 100;
 
-    [Header("Audio")]
-    [SerializeField] private AudioClip gameOverMusic;
-
     [Header("Difficulty")]
     [SerializeField] private float startThrowInterval = 1.2f;
     [SerializeField] private float endThrowInterval = 0.4f;
@@ -210,11 +207,11 @@ public class GameHandler : MonoBehaviour
 
         if (playerChain.ReleaseLastSegment())
         {
-            RegisterHit("sfx_roblox_oof_short");
+            RegisterHit();
             return;
         }
 
-        RegisterHit("sfx_ouch_short");
+        RegisterHit(true);
         TriggerGameOver();
     }
 
@@ -236,7 +233,7 @@ public class GameHandler : MonoBehaviour
         }
 
         RecalculateScore();
-        AudioManager.Instance?.PlaySFX("sfx_yay", false);
+        AudioManager.Instance?.PlayYaySfx();
         isGameOver = true;
         isPaused = false;
         SetPauseMenuVisible(false);
@@ -245,7 +242,7 @@ public class GameHandler : MonoBehaviour
         UpdateGameWinMenu();
         SetGameWinMenuVisible(true);
         StartGameWinMenuAnimation();
-        PauseGameTime();
+        PauseGameTime(false);
     }
 
     public void SaveScoreForNextScene()
@@ -253,16 +250,20 @@ public class GameHandler : MonoBehaviour
         RecalculateScore();
     }
 
-    public void RegisterHit(string soundName = "sfx_roblox_oof_short")
+    public void RegisterHit(bool useOuchSound = false)
     {
         if (isGameOver)
         {
             return;
         }
 
-        if (!string.IsNullOrWhiteSpace(soundName))
+        if (useOuchSound)
         {
-            AudioManager.Instance?.PlaySFX(soundName, false);
+            AudioManager.Instance?.PlayHitOuchSfx();
+        }
+        else
+        {
+            AudioManager.Instance?.PlayHitOofSfx();
         }
 
         hitCount++;
@@ -338,7 +339,7 @@ public class GameHandler : MonoBehaviour
     {
         PrepareForSceneReload();
         ResetRunStats();
-        AudioManager.Instance?.PlayStartMusic();
+        AudioManager.Instance?.PlayGameplayMusic();
         ResumeGameTime();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
@@ -370,6 +371,7 @@ public class GameHandler : MonoBehaviour
         ResetRunStats();
         HideAllMenus();
         ResumeGameTime();
+        AudioManager.Instance?.PlayGameplayMusic();
     }
 
     public void QuitGame()
@@ -381,7 +383,7 @@ public class GameHandler : MonoBehaviour
     {
         PrepareForSceneReload();
         ResetRunStats();
-        AudioManager.Instance?.PlayStartMusic();
+        AudioManager.Instance?.PlayGameplayMusic();
         ResumeGameTime();
         SceneManager.LoadScene(EscapeRoomSceneName);
     }
@@ -478,11 +480,8 @@ public class GameHandler : MonoBehaviour
         SetPauseMenuVisible(true);
         SetGameWinMenuVisible(false);
         UpdatePauseMenuState(showPause: false, showGameOver: true);
-        if (gameOverMusic != null)
-        {
-            AudioManager.Instance?.PlayMusic(gameOverMusic);
-        }
         PauseGameTime();
+        AudioManager.Instance?.PlayGameOverMusic();
     }
 
     private void PrepareForSceneReload()
@@ -518,6 +517,7 @@ public class GameHandler : MonoBehaviour
         }
 
         PauseGameTime();
+        AudioManager.Instance?.PlayMainMenuMusic();
     }
 
     private void HideAllMenus()
@@ -609,10 +609,14 @@ public class GameHandler : MonoBehaviour
         }
     }
 
-    private void PauseGameTime()
+    private void PauseGameTime(bool pauseMusic = true)
     {
         Time.timeScale = 0f;
-        AudioManager.Instance?.PauseMusic();
+
+        if (pauseMusic)
+        {
+            AudioManager.Instance?.PauseMusic();
+        }
     }
 
     private void ResumeGameTime()

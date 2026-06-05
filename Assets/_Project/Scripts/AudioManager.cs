@@ -10,16 +10,23 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource sfxSource;
 
     [Header("Music")]
-    [SerializeField] private AudioClip startMusic; // <- zieh hier deinen Clip rein
+    [SerializeField] private AudioClip gameplayMusic;
+    [SerializeField] private AudioClip mainMenuMusic;
+    [SerializeField] private AudioClip gameOverMusic;
+
+    [Header("SFX Clips")]
+    [SerializeField] private AudioClip knifeSfx;
+    [SerializeField] private AudioClip jumpSfx;
+    [SerializeField] private AudioClip yaySfx;
+    [SerializeField] private AudioClip hitOofSfx;
+    [SerializeField] private AudioClip hitOuchSfx;
+    [SerializeField] private AudioClip grinderSfx;
 
     [Header("Volume")]
     [Range(0f, 1f)] public float musicVolume = 1f;
     [Range(0f, 1f)] public float sfxVolume = 1f;
 
-    [Header("Sounds")]
-    public AudioClip[] soundClips;  // Hier ziehst du deine 3 Clips rein
-
-    private Dictionary<string, AudioSource> _activeLoops = new(); // Laufende Loops
+    private readonly Dictionary<string, AudioSource> activeLoops = new();
 
     private void Awake()
     {
@@ -37,28 +44,63 @@ public class AudioManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        musicSource.volume = musicVolume;
-        sfxSource.volume = sfxVolume;
+        if (musicSource != null)
+        {
+            musicSource.volume = musicVolume;
+        }
+
+        if (sfxSource != null)
+        {
+            sfxSource.volume = sfxVolume;
+        }
     }
 
-    private void Start() {
-        PlayStartMusic();
+    private void Start()
+    {
+        PlayGameplayMusic();
     }
-
-    // --- Musik ---
 
     public void PlayMusic(AudioClip clip, bool loop = true)
     {
-        if (musicSource.isPlaying && musicSource.clip == clip) return;
+        if (clip == null || musicSource == null)
+        {
+            return;
+        }
+
+        if (musicSource.isPlaying && musicSource.clip == clip)
+        {
+            return;
+        }
+
         musicSource.Stop();
         musicSource.clip = clip;
         musicSource.loop = loop;
         musicSource.Play();
     }
 
-    public void StopMusic() => musicSource.Stop();
-    public void PauseMusic() => musicSource.Pause();
-    public void ResumeMusic() => musicSource.UnPause();
+    public void StopMusic()
+    {
+        if (musicSource != null)
+        {
+            musicSource.Stop();
+        }
+    }
+
+    public void PauseMusic()
+    {
+        if (musicSource != null)
+        {
+            musicSource.Pause();
+        }
+    }
+
+    public void ResumeMusic()
+    {
+        if (musicSource != null)
+        {
+            musicSource.UnPause();
+        }
+    }
 
     public void RestartMusic()
     {
@@ -72,135 +114,132 @@ public class AudioManager : MonoBehaviour
         musicSource.Play();
     }
 
-    public void PlayStartMusic()
+    public void PlayGameplayMusic()
     {
-        if (startMusic == null)
-        {
-            return;
-        }
-
-        PlayMusic(startMusic);
+        PlayMusic(gameplayMusic);
     }
 
-    // --- SFX per Index ---
-
-    public void PlaySFX(int index, bool loop = false, float volume = 1f)
+    public void PlayMainMenuMusic()
     {
-        if (index < 0 || index >= soundClips.Length)
-        {
-            Debug.LogWarning($"AudioManager: Index {index} existiert nicht!");
-            return;
-        }
-        PlaySFXClip(soundClips[index], loop, volume);
+        PlayMusic(mainMenuMusic);
     }
 
-    // --- SFX per Name ---
-
-    public void PlaySFX(string clipName, bool loop = false, float volume = 1f)
+    public void PlayGameOverMusic()
     {
-        AudioClip clip = System.Array.Find(soundClips, c => c.name == clipName);
-        if (clip == null)
-        {
-            Debug.LogWarning($"AudioManager: Clip '{clipName}' nicht gefunden!");
-            return;
-        }
-
-        PlaySFXClip(clip, loop, volume);
+        PlayMusic(gameOverMusic);
     }
 
-    // --- SFX direkt abspielen, aber nur wenn er nicht schon läuft (für einmalige Sounds) ---
-    
-    public void PlaySFXBlocking(string clipName, float volume = 1f)
+    public void PlayKnifeSfx(float volume = 1f)
     {
-        AudioClip clip = System.Array.Find(soundClips, c => c.name == clipName);
-        if (clip == null)
+        PlayOneShotSfx(knifeSfx, volume);
+    }
+
+    public void PlayJumpSfx(float volume = 1f)
+    {
+        PlayOneShotSfx(jumpSfx, volume);
+    }
+
+    public void PlayYaySfx(float volume = 1f)
+    {
+        PlayOneShotSfx(yaySfx, volume);
+    }
+
+    public void PlayHitOofSfx(float volume = 1f)
+    {
+        PlayOneShotSfx(hitOofSfx, volume);
+    }
+
+    public void PlayHitOuchSfx(float volume = 1f)
+    {
+        PlayOneShotSfx(hitOuchSfx, volume);
+    }
+
+    public void PlayGrinderSfx(float volume = 1f)
+    {
+        PlayOneShotSfx(grinderSfx, volume);
+    }
+
+    public void PlayGrinderSfxBlocking(float volume = 1f)
+    {
+        PlayBlockingSfx(grinderSfx, volume);
+    }
+
+    public void StopSFX()
+    {
+        if (sfxSource != null)
         {
-            Debug.LogWarning($"AudioManager: Clip '{clipName}' nicht gefunden!");
+            sfxSource.Stop();
+        }
+    }
+
+    private void PlayOneShotSfx(AudioClip clip, float volume)
+    {
+        PlaySfxClip(clip, false, volume);
+    }
+
+    private void PlayBlockingSfx(AudioClip clip, float volume)
+    {
+        if (clip == null || sfxSource == null)
+        {
             return;
         }
 
-        // Prüfen ob genau dieser Clip gerade läuft
-        if (sfxSource.isPlaying && sfxSource.clip == clip) return;
+        if (sfxSource.isPlaying && sfxSource.clip == clip)
+        {
+            return;
+        }
 
         sfxSource.clip = clip;
         sfxSource.volume = sfxVolume * volume;
+        sfxSource.loop = false;
         sfxSource.Play();
     }
 
-    // --- SFX direkt ---
-
-    public void PlaySFX(AudioClip clip, bool loop = false, float volume = 1f)
+    private void PlaySfxClip(AudioClip clip, bool loop, float volume)
     {
-        PlaySFXClip(clip, loop, volume);
-    }
-
-    // --- Loop stoppen per Name --- 
-    public void StopLoop(string clipName)
-    {
-        if (_activeLoops.TryGetValue(clipName, out AudioSource source))
+        if (clip == null || sfxSource == null)
         {
-            source.Stop();
-            Destroy(source);
-            _activeLoops.Remove(clipName);
+            return;
         }
-        else
-        {
-            Debug.LogWarning($"AudioManager: Kein aktiver Loop '{clipName}' gefunden!");
-        }
-    }
 
-    // --- Alle Loops stoppen ---
-    public void StopAllLoops()
-    {
-        foreach (var source in _activeLoops.Values)
-        {
-            source.Stop();
-            Destroy(source);
-        }
-        _activeLoops.Clear();
-    }
- 
-    // --- SFX direkt stoppen (einmalige Sounds) ---
- 
-    public void StopSFX() => sfxSource.Stop();
- 
-    // --- Interner Helper ---
-    private void PlaySFXClip(AudioClip clip, bool loop, float volume) // 1f = maxLautstärke
-    {
-        float finalVolume = sfxVolume * volume; // globale Lautstärke * lokale Lautstärke
+        float finalVolume = sfxVolume * volume;
 
         if (loop)
         {
-            if (_activeLoops.ContainsKey(clip.name))
+            if (activeLoops.ContainsKey(clip.name))
             {
-                Debug.LogWarning($"AudioManager: Loop '{clip.name}' läuft bereits!");
                 return;
             }
+
             AudioSource newSource = gameObject.AddComponent<AudioSource>();
             newSource.clip = clip;
             newSource.loop = true;
             newSource.volume = finalVolume;
             newSource.Play();
-            _activeLoops[clip.name] = newSource;
+            activeLoops[clip.name] = newSource;
+            return;
         }
-        else
-        {
-            sfxSource.PlayOneShot(clip, finalVolume);
-        }
-}
 
-
-    // --- Lautstärke ---
+        sfxSource.PlayOneShot(clip, finalVolume);
+    }
 
     public void SetMusicVolume(float value)
     {
         musicVolume = Mathf.Clamp01(value);
-        musicSource.volume = musicVolume;
+
+        if (musicSource != null)
+        {
+            musicSource.volume = musicVolume;
+        }
     }
 
     public void SetSFXVolume(float value)
     {
         sfxVolume = Mathf.Clamp01(value);
-        sfxSource.volume = sfxVolume;
+
+        if (sfxSource != null)
+        {
+            sfxSource.volume = sfxVolume;
+        }
     }
 }

@@ -90,7 +90,7 @@ public class SurvivalEndGame : MonoBehaviour
 
         if (sausage.IsMainSausage)
         {
-            GameHandler.Instance?.RegisterHit("sfx_ouch_short");
+            GameHandler.Instance?.RegisterHit(true);
             bird.MarkForRemoval();
             FinishAsGameOver();
             return true;
@@ -102,7 +102,7 @@ public class SurvivalEndGame : MonoBehaviour
         }
 
         chainController?.RemoveSausage(sausage);
-        GameHandler.Instance?.RegisterHit("sfx_ouch_short");
+        GameHandler.Instance?.RegisterHit(true);
         sausage.Consume();
         bird.StartRetreat();
         return true;
