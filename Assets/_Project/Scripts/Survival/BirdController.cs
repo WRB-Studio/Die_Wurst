@@ -7,7 +7,8 @@ public class BirdController : MonoBehaviour
     [SerializeField] private GameObject birdPrefab;
     [SerializeField] private float minBirdInterval = 0.45f;
     [SerializeField] private float maxBirdInterval = 0.9f;
-    [SerializeField] private float birdSpeed = 7f;
+    [SerializeField] private float minBirdSpeed = 6f;
+    [SerializeField] private float maxBirdSpeed = 8f;
     [SerializeField] private float birdSpawnOffset = 1f;
     [SerializeField] private float minBirdSpawnY = -3.5f;
     [SerializeField] private float maxBirdSpawnY = 2.5f;
@@ -24,7 +25,8 @@ public class BirdController : MonoBehaviour
         owner = survivalOwner;
         minBirdInterval = Mathf.Max(0.05f, minBirdInterval);
         maxBirdInterval = Mathf.Max(minBirdInterval, maxBirdInterval);
-        birdSpeed = Mathf.Max(0.1f, birdSpeed);
+        minBirdSpeed = Mathf.Max(0.1f, minBirdSpeed);
+        maxBirdSpeed = Mathf.Max(minBirdSpeed, maxBirdSpeed);
         maxBirdSpawnY = Mathf.Max(minBirdSpawnY, maxBirdSpawnY);
         spawningEnabled = true;
         ResetSpawnTimer();
@@ -113,6 +115,7 @@ public class BirdController : MonoBehaviour
         bool fromLeft = Random.value < 0.5f;
         float spawnX = owner.GetHorizontalCameraEdge(fromLeft) + (fromLeft ? -birdSpawnOffset : birdSpawnOffset);
         float spawnY = Random.Range(minBirdSpawnY, maxBirdSpawnY);
+        float birdSpeed = Random.Range(minBirdSpeed, maxBirdSpeed);
         Vector3 spawnPosition = new Vector3(spawnX, spawnY, 0f);
         Vector3 direction = fromLeft ? Vector3.right : Vector3.left;
 
@@ -145,7 +148,8 @@ public class BirdController : MonoBehaviour
     {
         minBirdInterval = Mathf.Max(0.05f, minBirdInterval);
         maxBirdInterval = Mathf.Max(minBirdInterval, maxBirdInterval);
-        birdSpeed = Mathf.Max(0.1f, birdSpeed);
+        minBirdSpeed = Mathf.Max(0.1f, minBirdSpeed);
+        maxBirdSpeed = Mathf.Max(minBirdSpeed, maxBirdSpeed);
         maxBirdSpawnY = Mathf.Max(minBirdSpawnY, maxBirdSpawnY);
     }
 

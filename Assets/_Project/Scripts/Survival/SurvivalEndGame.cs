@@ -15,6 +15,7 @@ public class SurvivalEndGame : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private Transform chainRoot;
+    [SerializeField] private SpriteRenderer backgroundRenderer;
     [SerializeField] private GameObject mainSausagePrefab;
     [SerializeField] private GameObject extraSausagePrefab;
     [SerializeField] private GameObject groundMainSausagePrefab;
@@ -53,6 +54,7 @@ public class SurvivalEndGame : MonoBehaviour
     {
         ApplyCollectedSausageCount();
         EnsureSceneSetup();
+        FitBackgroundToCameraWidth();
         ConfigureChainController();
         CreateChain();
         ConfigureCameraFollow();
@@ -370,6 +372,33 @@ public class SurvivalEndGame : MonoBehaviour
             light.intensity = 1.2f;
             lightObject.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
         }
+    }
+
+    private void FitBackgroundToCameraWidth()
+    {
+        if (backgroundRenderer == null)
+        {
+            return;
+        }
+
+        Camera mainCamera = Camera.main;
+
+        if (mainCamera == null || !mainCamera.orthographic)
+        {
+            return;
+        }
+
+        Vector3 backgroundScale = backgroundRenderer.transform.localScale;
+        float spriteWidth = backgroundRenderer.sprite != null ? backgroundRenderer.sprite.bounds.size.x : 0f;
+
+        if (spriteWidth <= 0.001f)
+        {
+            return;
+        }
+
+        float targetWidth = mainCamera.orthographicSize * 2f * mainCamera.aspect;
+        backgroundScale.x = targetWidth / spriteWidth;
+        backgroundRenderer.transform.localScale = backgroundScale;
     }
 
     private void ConfigureCameraFollow()

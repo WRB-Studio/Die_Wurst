@@ -28,6 +28,10 @@ public class SurvivalChainController : MonoBehaviour
     [SerializeField] private float groundDirectionChangeSpeed = 3.5f;
     [SerializeField] private float groundRowHeight = 0.28f;
     [SerializeField] private float groundVerticalJitter = 0.08f;
+    [SerializeField] private float minGroundBounceHeight = 0.05f;
+    [SerializeField] private float maxGroundBounceHeight = 0.1f;
+    [SerializeField] private float minGroundBounceSpeed = 6f;
+    [SerializeField] private float maxGroundBounceSpeed = 9f;
 
     private readonly List<SurvivalSausage> sausages = new List<SurvivalSausage>();
     private readonly Dictionary<SurvivalSausage, Vector3> airPositionsBySausage = new Dictionary<SurvivalSausage, Vector3>();
@@ -35,6 +39,8 @@ public class SurvivalChainController : MonoBehaviour
     private readonly Dictionary<SurvivalSausage, float> groundSpacingFactorBySausage = new Dictionary<SurvivalSausage, float>();
     private readonly Dictionary<SurvivalSausage, float> groundLaneFactorBySausage = new Dictionary<SurvivalSausage, float>();
     private readonly Dictionary<SurvivalSausage, float> groundJitterFactorBySausage = new Dictionary<SurvivalSausage, float>();
+    private readonly Dictionary<SurvivalSausage, float> groundBounceHeightBySausage = new Dictionary<SurvivalSausage, float>();
+    private readonly Dictionary<SurvivalSausage, float> groundBounceSpeedBySausage = new Dictionary<SurvivalSausage, float>();
     private ChainPhase phase = ChainPhase.Air;
     private float groundDirection = 1f;
     private float targetGroundDirection = 1f;
@@ -55,12 +61,12 @@ public class SurvivalChainController : MonoBehaviour
 
     public void SetMainWorldPosition(Vector3 worldPosition)
     {
-        if (MainSausageTransform == null)
+        if (sausages.Count == 0 || sausages[0] == null)
         {
             return;
         }
 
-        MainSausageTransform.position = worldPosition;
+        sausages[0].SetWorldPositionImmediate(worldPosition);
     }
 
     public void RegisterSausage(SurvivalSausage sausage)
@@ -79,6 +85,9 @@ public class SurvivalChainController : MonoBehaviour
             groundSpacingFactorBySausage[sausage] = Random.Range(0f, 1f);
             groundLaneFactorBySausage[sausage] = CreateGroundLaneFactor();
             groundJitterFactorBySausage[sausage] = Random.Range(-1f, 1f);
+            groundBounceHeightBySausage[sausage] = Random.Range(minGroundBounceHeight, maxGroundBounceHeight);
+            groundBounceSpeedBySausage[sausage] = Random.Range(minGroundBounceSpeed, maxGroundBounceSpeed);
+            ApplyGroundBounceSettings(sausage);
         }
     }
 
@@ -95,6 +104,8 @@ public class SurvivalChainController : MonoBehaviour
         groundSpacingFactorBySausage.Remove(sausage);
         groundLaneFactorBySausage.Remove(sausage);
         groundJitterFactorBySausage.Remove(sausage);
+        groundBounceHeightBySausage.Remove(sausage);
+        groundBounceSpeedBySausage.Remove(sausage);
     }
 
     public void ReplaceSausage(SurvivalSausage oldSausage, SurvivalSausage newSausage)
@@ -143,6 +154,23 @@ public class SurvivalChainController : MonoBehaviour
             groundJitterFactorBySausage.Remove(oldSausage);
             groundJitterFactorBySausage[newSausage] = jitterFactor;
         }
+
+        if (groundBounceHeightBySausage.TryGetValue(oldSausage, out float bounceHeight))
+        {
+            groundBounceHeightBySausage.Remove(oldSausage);
+            groundBounceHeightBySausage[newSausage] = bounceHeight;
+        }
+
+        if (groundBounceSpeedBySausage.TryGetValue(oldSausage, out float bounceSpeed))
+        {
+            groundBounceSpeedBySausage.Remove(oldSausage);
+            groundBounceSpeedBySausage[newSausage] = bounceSpeed;
+        }
+
+        if (!newSausage.IsMainSausage)
+        {
+            ApplyGroundBounceSettings(newSausage);
+        }
     }
 
     public void SetAirPhase()
@@ -156,6 +184,11 @@ public class SurvivalChainController : MonoBehaviour
 
         for (int i = 0; i < sausages.Count; i++)
         {
+            if (!sausages[i].IsMainSausage)
+            {
+                ApplyGroundBounceSettings(sausages[i]);
+            }
+
             sausages[i].EnterGroundMode();
         }
     }
@@ -456,6 +489,28 @@ public class SurvivalChainController : MonoBehaviour
         return Random.Range(-variance, variance);
     }
 
+    private void ApplyGroundBounceSettings(SurvivalSausage sausage)
+    {
+        if (sausage == null || sausage.IsMainSausage)
+        {
+            return;
+        }
+
+        if (!groundBounceHeightBySausage.TryGetValue(sausage, out float bounceHeight))
+        {
+            bounceHeight = Random.Range(minGroundBounceHeight, maxGroundBounceHeight);
+            groundBounceHeightBySausage[sausage] = bounceHeight;
+        }
+
+        if (!groundBounceSpeedBySausage.TryGetValue(sausage, out float bounceSpeed))
+        {
+            bounceSpeed = Random.Range(minGroundBounceSpeed, maxGroundBounceSpeed);
+            groundBounceSpeedBySausage[sausage] = bounceSpeed;
+        }
+
+        sausage.ConfigureGroundBounce(bounceHeight, bounceSpeed);
+    }
+
     private void OnValidate()
     {
         initialExtraSausages = Mathf.Max(0, initialExtraSausages);
@@ -473,6 +528,10 @@ public class SurvivalChainController : MonoBehaviour
         groundDirectionChangeSpeed = Mathf.Max(0.01f, groundDirectionChangeSpeed);
         groundRowHeight = Mathf.Max(0f, groundRowHeight);
         groundVerticalJitter = Mathf.Max(0f, groundVerticalJitter);
+        minGroundBounceHeight = Mathf.Max(0f, minGroundBounceHeight);
+        maxGroundBounceHeight = Mathf.Max(minGroundBounceHeight, maxGroundBounceHeight);
+        minGroundBounceSpeed = Mathf.Max(0.01f, minGroundBounceSpeed);
+        maxGroundBounceSpeed = Mathf.Max(minGroundBounceSpeed, maxGroundBounceSpeed);
     }
 
     private void OnDrawGizmosSelected()

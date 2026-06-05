@@ -700,6 +700,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SurvivalEndGame
   chainRoot: {fileID: 1570532153}
+  backgroundRenderer: {fileID: 1614565892}
   mainSausagePrefab: {fileID: 4547207601120964479, guid: 6c4982eaf99186d46b7043bc71d85969, type: 3}
   extraSausagePrefab: {fileID: 4547207601120964479, guid: 8f653cc99535a7c41b7ce468c52a65cf, type: 3}
   groundMainSausagePrefab: {fileID: 428117976415043202, guid: 455b544185c87a442a0387b1c212a6fb, type: 3}
@@ -708,7 +709,7 @@ MonoBehaviour:
   chainController: {fileID: 1487813483}
   startSpawnY: 18.5
   horizontalSpeed: 4
-  fallSpeed: 1.2
+  fallSpeed: 1.3
   minX: -8
   maxX: 8
   landingY: -5.25
@@ -716,9 +717,6 @@ MonoBehaviour:
   leftEscapeX: -10.25
   rightEscapeX: 10.25
   escapeGizmoColor: {r: 0.95, g: 0.35, b: 0.2, a: 0.9}
-  birdHitPenalty: 100
-  edgeReachBonus: 500
-  rescuedSausageBonus: 100
   cameraFollow: {fileID: 1665846747}
 --- !u!4 &746091297
 Transform:
@@ -928,9 +926,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BirdController
   birdPrefab: {fileID: 847620682721766580, guid: 9f6867b1dfc394946b6e221d6a831410, type: 3}
-  minBirdInterval: 0.2
-  maxBirdInterval: 1
-  birdSpeed: 3
+  minBirdInterval: 0.1
+  maxBirdInterval: 0.9
+  minBirdSpeed: 2.8
+  maxBirdSpeed: 4.25
   birdSpawnOffset: 1
   minBirdSpawnY: -2.5
   maxBirdSpawnY: 17.5
@@ -1121,7 +1120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfd29e462dda4cd6acb2b59e3be3cabd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SurvivalChainController
-  initialExtraSausages: 50
+  initialExtraSausages: 20
   airInnerRadius: 1
   airOuterRadius: 1.8
   airFollowSmoothTime: 0.12
@@ -1133,10 +1132,14 @@ MonoBehaviour:
   minGroundSegmentSpacing: 0.02
   maxGroundSegmentSpacing: 0.25
   groundFollowSmoothTime: 0.15
-  groundSmoothnessVariance: 0.75
-  groundDirectionChangeSpeed: 0.5
+  groundSmoothnessVariance: 0.2
+  groundDirectionChangeSpeed: 1
   groundRowHeight: 0.09
   groundVerticalJitter: 0
+  minGroundBounceHeight: 0.08
+  maxGroundBounceHeight: 0.2
+  minGroundBounceSpeed: 14
+  maxGroundBounceSpeed: 22
 --- !u!1001 &1507159374
 PrefabInstance:
   m_ObjectHideFlags: 0
