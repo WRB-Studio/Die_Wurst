@@ -7356,10 +7356,10 @@ MonoBehaviour:
   windowTransform: {fileID: 8719421271645186014}
   windowHingeTransform: {fileID: 235529946}
   exitTrigger: {fileID: 0}
-  minWindowEventDelay: 1
-  maxWindowEventDelay: 1
-  minWindowOpenDuration: 1
-  maxWindowOpenDuration: 1
+  minWindowEventDelay: 18
+  maxWindowEventDelay: 28
+  minWindowOpenDuration: 4
+  maxWindowOpenDuration: 7
   openLocalEulerOffset: {x: 75, y: 0, z: 0}
   windowRotationSpeed: 240
   windowHitLocalOffset: {x: 0, y: -0.15, z: 0.05}
@@ -10219,7 +10219,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  throwIntervalCurveDuration: 60
+  throwIntervalCurveDuration: 75
   throwIntervalRandomOffset: 0.2
   startConveyorSpeed: 1
   endConveyorSpeed: 6
@@ -10256,7 +10256,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  conveyorSpeedCurveDuration: 180
+  conveyorSpeedCurveDuration: 100
   conveyorMaterialSpeedFactor: 0.5
   conveyorScrollingMaterial: {fileID: 2100000, guid: e989f0275acf9d648aeb76690c305d31, type: 2}
   conveyorScrollingMaterialInverted: {fileID: 2100000, guid: ba1a63067b3f6f7459246592007dd546, type: 2}
