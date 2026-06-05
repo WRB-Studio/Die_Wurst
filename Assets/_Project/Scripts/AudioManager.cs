@@ -61,6 +61,18 @@ public class AudioManager : MonoBehaviour
     public void PauseMusic() => musicSource.Pause();
     public void ResumeMusic() => musicSource.UnPause();
 
+    public void RestartMusic()
+    {
+        if (musicSource == null || musicSource.clip == null)
+        {
+            return;
+        }
+
+        musicSource.Stop();
+        musicSource.time = 0f;
+        musicSource.Play();
+    }
+
     // --- SFX per Index ---
 
     public void PlaySFX(int index, bool loop = false, float volume = 1f)

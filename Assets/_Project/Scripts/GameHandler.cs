@@ -5,13 +5,19 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 public class GameHandler : MonoBehaviour
 {
+    private const string CarryOverScoreKey = "CarryOverScore";
+    private const string EscapeRoomSceneName = "SausageEscapeRoom";
+    private const string SurvivalSceneName = "SausageSurvivalEnd";
+
     public static GameHandler Instance { get; private set; }
 
     private static bool skipMainMenuOnNextLoad;
     private static readonly int DirectionPropertyId = Shader.PropertyToID("_direction");
+    private readonly List<GameObject> persistentSceneRoots = new List<GameObject>();
 
     [Header("UI")]
     [SerializeField] private GameObject pauseMenu;
@@ -65,7 +71,12 @@ public class GameHandler : MonoBehaviour
     private float elapsedGameTime;
     private int collectedSausageCount;
     private int hitCount;
+    private int baseScore;
     private int currentScore;
+    private bool useAutomaticScoring = true;
+
+    public int CurrentScore => currentScore;
+    public int BaseScore => baseScore;
 
     private void Awake()
     {
@@ -75,7 +86,11 @@ public class GameHandler : MonoBehaviour
             return;
         }
 
+        transform.SetParent(null, true);
+        DontDestroyOnLoad(gameObject);
         EnsureEventSystemExists();
+        CachePersistentSceneRoots();
+        MakePersistentSceneRootsPersistent();
         Instance = this;
         ApplyConveyorMaterialSettings();
         Time.timeScale = 1f;
@@ -101,12 +116,14 @@ public class GameHandler : MonoBehaviour
 
         HideAllMenus();
         ResumeGameTime();
+        SceneManager.sceneLoaded += HandleSceneLoaded;
     }
 
     private void OnDestroy()
     {
         if (Instance == this)
         {
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
             Time.timeScale = 1f;
             Instance = null;
         }
@@ -117,7 +134,12 @@ public class GameHandler : MonoBehaviour
         if (IsGameplayRunning())
         {
             elapsedGameTime += Time.deltaTime;
-            RecalculateScore();
+
+            if (useAutomaticScoring)
+            {
+                RecalculateScore();
+            }
+
             ApplyConveyorMaterialSettings();
         }
 
@@ -174,6 +196,46 @@ public class GameHandler : MonoBehaviour
         TriggerGameOver();
     }
 
+    public void SaveScoreForNextScene()
+    {
+        StoreCarryOverScore(currentScore);
+    }
+
+    public void AddScore(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        currentScore += amount;
+        UpdateStatsUI();
+    }
+
+    public void SubtractScore(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        currentScore = Mathf.Max(0, currentScore - amount);
+        UpdateStatsUI();
+    }
+
+    public void SetAutomaticScoringEnabled(bool isEnabled)
+    {
+        useAutomaticScoring = isEnabled;
+
+        if (useAutomaticScoring)
+        {
+            RecalculateScore();
+            return;
+        }
+
+        UpdateStatsUI();
+    }
+
     public void RegisterCollectedSausage()
     {
         if (isGameOver)
@@ -213,12 +275,21 @@ public class GameHandler : MonoBehaviour
 
     public void RestartScene()
     {
+        PrepareForSceneReload();
+        AudioManager.Instance?.RestartMusic();
         ResumeGameTime();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void ReplayGame()
     {
+        if (SceneManager.GetActiveScene().name == SurvivalSceneName)
+        {
+            StoreCarryOverScore(baseScore);
+            RestartEscapeRoom();
+            return;
+        }
+
         skipMainMenuOnNextLoad = true;
         RestartScene();
     }
@@ -243,6 +314,14 @@ public class GameHandler : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    private void RestartEscapeRoom()
+    {
+        PrepareForSceneReload();
+        AudioManager.Instance?.RestartMusic();
+        ResumeGameTime();
+        SceneManager.LoadScene(EscapeRoomSceneName);
     }
 
     public void OpenSettings()
@@ -337,6 +416,26 @@ public class GameHandler : MonoBehaviour
         SetPauseMenuVisible(true);
         UpdatePauseMenuState(showPause: false, showGameOver: true);
         PauseGameTime();
+    }
+
+    private void PrepareForSceneReload()
+    {
+        isPaused = false;
+        isGameOver = false;
+        isMainMenuOpen = false;
+        isCreditsOpen = false;
+        SetPauseMenuVisible(false);
+        UpdatePauseMenuState(showPause: true, showGameOver: false);
+
+        if (mainMenu != null)
+        {
+            mainMenu.SetActive(false);
+        }
+
+        if (creditsScreen != null)
+        {
+            creditsScreen.SetActive(false);
+        }
     }
 
     private void OpenMainMenu()
@@ -450,14 +549,16 @@ public class GameHandler : MonoBehaviour
         elapsedGameTime = 0f;
         collectedSausageCount = 0;
         hitCount = 0;
-        currentScore = 0;
+        baseScore = ConsumeCarryOverScore();
+        currentScore = baseScore;
+        useAutomaticScoring = true;
         UpdateStatsUI();
     }
 
     private void RecalculateScore()
     {
         int timeScore = Mathf.FloorToInt(elapsedGameTime) * timeScorePerSecond;
-        currentScore = Mathf.Max(0, collectedSausageCount * collectScore + timeScore - hitCount * hitPenalty);
+        currentScore = Mathf.Max(0, baseScore + collectedSausageCount * collectScore + timeScore - hitCount * hitPenalty);
         UpdateStatsUI();
     }
 
@@ -494,6 +595,34 @@ public class GameHandler : MonoBehaviour
         eventSystemObject.AddComponent<InputSystemUIInputModule>();
     }
 
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        EnsureEventSystemExists();
+        DisableDuplicatePersistentSceneRoots(scene);
+        ResolveSceneReferences();
+
+        if (scene.name == SurvivalSceneName)
+        {
+            ResetRunStats();
+            isPaused = false;
+            isGameOver = false;
+            isMainMenuOpen = false;
+            isCreditsOpen = false;
+            HideAllMenus();
+            SetAutomaticScoringEnabled(false);
+            ResumeGameTime();
+            return;
+        }
+
+        if (!skipMainMenuOnNextLoad)
+        {
+            return;
+        }
+
+        skipMainMenuOnNextLoad = false;
+        StartGame();
+    }
+
     private void RegisterButtons()
     {
         BindButton(resumeButton, ResumeGame);
@@ -516,6 +645,127 @@ public class GameHandler : MonoBehaviour
 
         button.onClick.RemoveListener(action);
         button.onClick.AddListener(action);
+    }
+
+    private void ResolveSceneReferences()
+    {
+        playerChain = FindFirstObjectByType<SausageChainController>();
+    }
+
+    private void CachePersistentSceneRoots()
+    {
+        persistentSceneRoots.Clear();
+        AddPersistentCanvasRoot(pauseMenu);
+        AddPersistentCanvasRoot(mainMenu);
+        AddPersistentCanvasRoot(creditsScreen);
+
+        if (EventSystem.current != null)
+        {
+            AddPersistentSceneRoot(EventSystem.current.gameObject);
+        }
+    }
+
+    private void AddPersistentCanvasRoot(GameObject target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        Canvas canvas = target.GetComponentInParent<Canvas>(true);
+
+        if (canvas == null)
+        {
+            AddPersistentSceneRoot(target);
+            return;
+        }
+
+        AddPersistentSceneRoot(canvas.gameObject);
+    }
+
+    private void AddPersistentSceneRoot(GameObject target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        GameObject root = target.transform.root.gameObject;
+
+        if (persistentSceneRoots.Contains(root))
+        {
+            return;
+        }
+
+        persistentSceneRoots.Add(root);
+    }
+
+    private void MakePersistentSceneRootsPersistent()
+    {
+        for (int i = 0; i < persistentSceneRoots.Count; i++)
+        {
+            GameObject root = persistentSceneRoots[i];
+
+            if (root != null)
+            {
+                DontDestroyOnLoad(root);
+            }
+        }
+    }
+
+    private void DisableDuplicatePersistentSceneRoots(Scene scene)
+    {
+        GameObject[] sceneRoots = scene.GetRootGameObjects();
+
+        for (int i = 0; i < sceneRoots.Length; i++)
+        {
+            GameObject sceneRoot = sceneRoots[i];
+
+            if (sceneRoot == null || !IsDuplicatePersistentSceneRoot(sceneRoot))
+            {
+                continue;
+            }
+
+            sceneRoot.SetActive(false);
+        }
+    }
+
+    private bool IsDuplicatePersistentSceneRoot(GameObject sceneRoot)
+    {
+        for (int i = 0; i < persistentSceneRoots.Count; i++)
+        {
+            GameObject persistentRoot = persistentSceneRoots[i];
+
+            if (persistentRoot == null || persistentRoot == sceneRoot)
+            {
+                continue;
+            }
+
+            if (persistentRoot.name == sceneRoot.name)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static void StoreCarryOverScore(int score)
+    {
+        PlayerPrefs.SetInt(CarryOverScoreKey, Mathf.Max(0, score));
+        PlayerPrefs.Save();
+    }
+
+    private static int ConsumeCarryOverScore()
+    {
+        if (!PlayerPrefs.HasKey(CarryOverScoreKey))
+        {
+            return 0;
+        }
+
+        int score = Mathf.Max(0, PlayerPrefs.GetInt(CarryOverScoreKey));
+        PlayerPrefs.DeleteKey(CarryOverScoreKey);
+        return score;
     }
 
     private void OnValidate()

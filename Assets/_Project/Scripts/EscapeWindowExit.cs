@@ -243,6 +243,7 @@ public class EscapeWindowExit : MonoBehaviour
         }
 
         SaveCollectedSausageCount(sausageMovement);
+        GameHandler.Instance?.SaveScoreForNextScene();
         isLoading = true;
         SceneManager.LoadScene(survivalSceneName);
     }

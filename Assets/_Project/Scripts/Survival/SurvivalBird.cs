@@ -2,58 +2,82 @@ using UnityEngine;
 
 public class SurvivalBird : MonoBehaviour
 {
-    [SerializeField] private float speed = 7f;
     [SerializeField] private float cameraDestroyPadding = 0.2f;
-    [SerializeField] private float frameTime = 0.16f;
 
-    private SurvivalEndGame endGame;
+    private BirdController controller;
     private SpriteRenderer spriteRenderer;
-    private Sprite frameA;
-    private Sprite frameB;
     private Vector3 direction;
-    private float frameTimer;
-    private bool showFrameB;
-    private bool hasSnatched;
+    private float speed;
+    private bool hasResolvedHit;
+    private bool shouldBeRemoved;
+    private Rigidbody body;
 
-    public void Initialize(SurvivalEndGame owner, Vector3 flyDirection, float flySpeed, Sprite firstFrame = null, Sprite secondFrame = null)
+    public void Initialize(BirdController owner, Vector3 flyDirection, float flySpeed)
     {
-        endGame = owner;
+        controller = owner;
         direction = flyDirection.normalized;
         speed = flySpeed;
-        frameA = firstFrame;
-        frameB = secondFrame;
-
-        spriteRenderer = GetComponent<SpriteRenderer>();
-
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.sprite = frameA != null ? frameA : spriteRenderer.sprite;
-            spriteRenderer.flipX = direction.x < 0f;
-        }
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        body = GetComponent<Rigidbody>();
+        UpdateSpriteDirection();
     }
 
-    private void Update()
+    public void TickMovement(float deltaTime)
     {
-        transform.position += direction * speed * Time.deltaTime;
+        Vector3 step = direction * speed * deltaTime;
 
-        UpdateAnimation();
+        if (body != null)
+        {
+            body.MovePosition(body.position + step);
+        }
+        else
+        {
+            transform.position += step;
+        }
 
         if (IsOutsideCamera())
         {
-            Destroy(gameObject);
+            shouldBeRemoved = true;
         }
+    }
+
+    public void StartRetreat()
+    {
+        direction = -direction;
+        hasResolvedHit = true;
+        UpdateSpriteDirection();
+    }
+
+    public void MarkForRemoval()
+    {
+        shouldBeRemoved = true;
+    }
+
+    public bool ShouldBeRemoved()
+    {
+        return shouldBeRemoved;
+    }
+
+    private void UpdateSpriteDirection()
+    {
+        if (spriteRenderer == null)
+        {
+            return;
+        }
+
+        spriteRenderer.flipX = direction.x < 0f;
     }
 
     private bool IsOutsideCamera()
     {
-        Camera camera = Camera.main;
+        Camera mainCamera = Camera.main;
 
-        if (camera == null)
+        if (mainCamera == null)
         {
             return false;
         }
 
-        Vector3 viewportPosition = camera.WorldToViewportPoint(transform.position);
+        Vector3 viewportPosition = mainCamera.WorldToViewportPoint(transform.position);
 
         return viewportPosition.x < -cameraDestroyPadding
             || viewportPosition.x > 1f + cameraDestroyPadding
@@ -61,41 +85,23 @@ public class SurvivalBird : MonoBehaviour
             || viewportPosition.y > 1f + cameraDestroyPadding;
     }
 
-    private void UpdateAnimation()
-    {
-        if (spriteRenderer == null || frameA == null || frameB == null)
-        {
-            return;
-        }
-
-        frameTimer -= Time.deltaTime;
-
-        if (frameTimer > 0f)
-        {
-            return;
-        }
-
-        frameTimer = frameTime;
-        showFrameB = !showFrameB;
-        spriteRenderer.sprite = showFrameB ? frameB : frameA;
-    }
-
     private void OnTriggerEnter(Collider other)
     {
-        if (hasSnatched)
+        if (hasResolvedHit || controller == null)
         {
             return;
         }
 
         SurvivalSausage sausage = other.GetComponent<SurvivalSausage>();
 
-        if (sausage == null || endGame == null)
+        if (sausage == null)
         {
             return;
         }
 
-        hasSnatched = true;
-        endGame.StealSausage(sausage);
-        Destroy(gameObject);
+        if (sausage.TryHitByBird(this))
+        {
+            hasResolvedHit = true;
+        }
     }
 }
