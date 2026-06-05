@@ -38,11 +38,6 @@ public class SurvivalEndGame : MonoBehaviour
     [SerializeField] private float rightEscapeX = 5f;
     [SerializeField] private Color escapeGizmoColor = new Color(0.95f, 0.35f, 0.2f, 0.9f);
 
-    [Header("Scoring")]
-    [SerializeField] private int birdHitPenalty = 100;
-    [SerializeField] private int edgeReachBonus = 500;
-    [SerializeField] private int rescuedSausageBonus = 100;
-
     [Header("Camera")]
     [SerializeField] private SurvivalCameraFollow cameraFollow;
 
@@ -95,6 +90,7 @@ public class SurvivalEndGame : MonoBehaviour
 
         if (sausage.IsMainSausage)
         {
+            GameHandler.Instance?.RegisterHit();
             bird.MarkForRemoval();
             FinishAsGameOver();
             return true;
@@ -106,7 +102,7 @@ public class SurvivalEndGame : MonoBehaviour
         }
 
         chainController?.RemoveSausage(sausage);
-        GameHandler.Instance?.SubtractScore(birdHitPenalty);
+        GameHandler.Instance?.RegisterHit();
         sausage.Consume();
         bird.StartRetreat();
         return true;
@@ -204,10 +200,9 @@ public class SurvivalEndGame : MonoBehaviour
     {
         phase = SurvivalPhase.Finished;
         StopBirds();
-
-        int rescuedBonus = sausages.Count * rescuedSausageBonus;
-        GameHandler.Instance?.AddScore(edgeReachBonus + rescuedBonus);
-        GameHandler.Instance?.ShowGameOver();
+        GameHandler.Instance?.RegisterEscape();
+        GameHandler.Instance?.RegisterRescuedSausages(sausages.Count);
+        GameHandler.Instance?.ShowGameWin();
     }
 
     private void StopBirds()
@@ -228,8 +223,6 @@ public class SurvivalEndGame : MonoBehaviour
             GameObject gameHandlerObject = new GameObject("GameHandler");
             gameHandlerObject.AddComponent<GameHandler>();
         }
-
-        GameHandler.Instance?.SetAutomaticScoringEnabled(false);
     }
 
     private void ConfigureBirdController()

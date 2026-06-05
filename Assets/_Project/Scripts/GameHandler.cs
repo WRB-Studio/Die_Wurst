@@ -9,7 +9,6 @@ using System.Collections.Generic;
 
 public class GameHandler : MonoBehaviour
 {
-    private const string CarryOverScoreKey = "CarryOverScore";
     private const string EscapeRoomSceneName = "SausageEscapeRoom";
     private const string SurvivalSceneName = "SausageSurvivalEnd";
 
@@ -23,6 +22,7 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject creditsScreen;
+    [SerializeField] private GameObject gameWinMenu;
     [SerializeField] private GameObject pausedImage;
     [SerializeField] private GameObject gameOverImage;
     [SerializeField] private GameObject scoreImage;
@@ -39,6 +39,18 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private TMP_Text scoreValueText;
     [SerializeField] private TMP_Text timeValueText;
 
+    [Header("Game Win Score Items")]
+    [SerializeField] private GameObject collectedScoreItem;
+    [SerializeField] private GameObject timeScoreItem;
+    [SerializeField] private GameObject hitScoreItem;
+    [SerializeField] private GameObject escapeScoreItem;
+    [SerializeField] private GameObject rescuedScoreItem;
+    [SerializeField] private GameObject finalScoreItem;
+
+    [Header("Game Win Animation")]
+    [SerializeField] private float scoreRevealDuration = 4f;
+    [SerializeField] private float finalScoreRevealDuration = 0.8f;
+
     [Header("Gameplay")]
     [SerializeField] private SausageChainController playerChain;
     [SerializeField] private bool showMainMenuOnStart = true;
@@ -47,6 +59,8 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private int collectScore = 100;
     [SerializeField] private int hitPenalty = 50;
     [SerializeField] private int timeScorePerSecond = 10;
+    [SerializeField] private int escapeScore = 500;
+    [SerializeField] private int rescuedSausageScore = 100;
 
     [Header("Difficulty")]
     [SerializeField] private float startThrowInterval = 1.2f;
@@ -71,12 +85,26 @@ public class GameHandler : MonoBehaviour
     private float elapsedGameTime;
     private int collectedSausageCount;
     private int hitCount;
-    private int baseScore;
+    private int escapeCount;
+    private int rescuedSausageCount;
     private int currentScore;
-    private bool useAutomaticScoring = true;
+    private bool isGameWinVisible;
+    private bool isGameWinCountingFinalScore;
+    private bool isGameWinAnimationComplete;
+    private float gameWinRevealTimer;
+    private float gameWinFinalRevealTimer;
 
     public int CurrentScore => currentScore;
-    public int BaseScore => baseScore;
+    public int CollectedSausageCount => collectedSausageCount;
+    public int HitCount => hitCount;
+    public int EscapeCount => escapeCount;
+    public int RescuedSausageCount => rescuedSausageCount;
+    public float ElapsedGameTime => elapsedGameTime;
+    public int CollectedScore => collectedSausageCount * collectScore;
+    public int TimeScore => Mathf.FloorToInt(elapsedGameTime) * timeScorePerSecond;
+    public int HitPenaltyScore => hitCount * hitPenalty;
+    public int EscapeScoreTotal => escapeCount * escapeScore;
+    public int RescuedScoreTotal => rescuedSausageCount * rescuedSausageScore;
 
     private void Awake()
     {
@@ -99,6 +127,8 @@ public class GameHandler : MonoBehaviour
 
     private void Start()
     {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+        SceneManager.sceneLoaded += HandleSceneLoaded;
         ResetRunStats();
 
         if (skipMainMenuOnNextLoad)
@@ -116,7 +146,6 @@ public class GameHandler : MonoBehaviour
 
         HideAllMenus();
         ResumeGameTime();
-        SceneManager.sceneLoaded += HandleSceneLoaded;
     }
 
     private void OnDestroy()
@@ -134,13 +163,14 @@ public class GameHandler : MonoBehaviour
         if (IsGameplayRunning())
         {
             elapsedGameTime += Time.deltaTime;
-
-            if (useAutomaticScoring)
-            {
-                RecalculateScore();
-            }
-
+            RecalculateScore();
             ApplyConveyorMaterialSettings();
+        }
+
+        if (isGameWinVisible)
+        {
+            UpdateGameWinMenuAnimation();
+            return;
         }
 
         if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame)
@@ -175,8 +205,7 @@ public class GameHandler : MonoBehaviour
             return;
         }
 
-        hitCount++;
-        RecalculateScore();
+        RegisterHit();
 
         if (playerChain.ReleaseLastSegment())
         {
@@ -196,43 +225,44 @@ public class GameHandler : MonoBehaviour
         TriggerGameOver();
     }
 
+    public void ShowGameWin()
+    {
+        if (isGameOver)
+        {
+            return;
+        }
+
+        RecalculateScore();
+        isGameOver = true;
+        isPaused = false;
+        SetPauseMenuVisible(false);
+        HideGameOverStats();
+        HideMainAndCredits();
+        UpdateGameWinMenu();
+        SetGameWinMenuVisible(true);
+        StartGameWinMenuAnimation();
+        PauseGameTime();
+    }
+
     public void SaveScoreForNextScene()
     {
-        StoreCarryOverScore(currentScore);
+        RecalculateScore();
     }
 
-    public void AddScore(int amount)
+    public void RegisterHit()
     {
-        if (amount <= 0)
+        if (isGameOver)
         {
             return;
         }
 
-        currentScore += amount;
-        UpdateStatsUI();
-    }
-
-    public void SubtractScore(int amount)
-    {
-        if (amount <= 0)
-        {
-            return;
-        }
-
-        currentScore = Mathf.Max(0, currentScore - amount);
-        UpdateStatsUI();
+        hitCount++;
+        RecalculateScore();
     }
 
     public void SetAutomaticScoringEnabled(bool isEnabled)
     {
-        useAutomaticScoring = isEnabled;
-
-        if (useAutomaticScoring)
-        {
-            RecalculateScore();
-            return;
-        }
-
+        _ = isEnabled;
         UpdateStatsUI();
     }
 
@@ -244,6 +274,28 @@ public class GameHandler : MonoBehaviour
         }
 
         collectedSausageCount++;
+        RecalculateScore();
+    }
+
+    public void RegisterEscape()
+    {
+        if (isGameOver)
+        {
+            return;
+        }
+
+        escapeCount++;
+        RecalculateScore();
+    }
+
+    public void RegisterRescuedSausages(int amount)
+    {
+        if (isGameOver || amount <= 0)
+        {
+            return;
+        }
+
+        rescuedSausageCount += amount;
         RecalculateScore();
     }
 
@@ -276,6 +328,7 @@ public class GameHandler : MonoBehaviour
     public void RestartScene()
     {
         PrepareForSceneReload();
+        ResetRunStats();
         AudioManager.Instance?.RestartMusic();
         ResumeGameTime();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -285,7 +338,6 @@ public class GameHandler : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == SurvivalSceneName)
         {
-            StoreCarryOverScore(baseScore);
             RestartEscapeRoom();
             return;
         }
@@ -319,6 +371,7 @@ public class GameHandler : MonoBehaviour
     private void RestartEscapeRoom()
     {
         PrepareForSceneReload();
+        ResetRunStats();
         AudioManager.Instance?.RestartMusic();
         ResumeGameTime();
         SceneManager.LoadScene(EscapeRoomSceneName);
@@ -414,6 +467,7 @@ public class GameHandler : MonoBehaviour
         isGameOver = true;
         isPaused = false;
         SetPauseMenuVisible(true);
+        SetGameWinMenuVisible(false);
         UpdatePauseMenuState(showPause: false, showGameOver: true);
         PauseGameTime();
     }
@@ -426,16 +480,9 @@ public class GameHandler : MonoBehaviour
         isCreditsOpen = false;
         SetPauseMenuVisible(false);
         UpdatePauseMenuState(showPause: true, showGameOver: false);
+        SetGameWinMenuVisible(false);
 
-        if (mainMenu != null)
-        {
-            mainMenu.SetActive(false);
-        }
-
-        if (creditsScreen != null)
-        {
-            creditsScreen.SetActive(false);
-        }
+        HideMainAndCredits();
     }
 
     private void OpenMainMenu()
@@ -445,6 +492,7 @@ public class GameHandler : MonoBehaviour
         isCreditsOpen = false;
         SetPauseMenuVisible(false);
         UpdatePauseMenuState(showPause: true, showGameOver: false);
+        SetGameWinMenuVisible(false);
 
         if (mainMenu != null)
         {
@@ -463,17 +511,10 @@ public class GameHandler : MonoBehaviour
     {
         SetPauseMenuVisible(false);
         UpdatePauseMenuState(showPause: true, showGameOver: false);
+        SetGameWinMenuVisible(false);
         isCreditsOpen = false;
 
-        if (mainMenu != null)
-        {
-            mainMenu.SetActive(false);
-        }
-
-        if (creditsScreen != null)
-        {
-            creditsScreen.SetActive(false);
-        }
+        HideMainAndCredits();
     }
 
     private void SetPauseMenuVisible(bool isVisible)
@@ -481,6 +522,16 @@ public class GameHandler : MonoBehaviour
         if (pauseMenu != null)
         {
             pauseMenu.SetActive(isVisible);
+        }
+    }
+
+    private void SetGameWinMenuVisible(bool isVisible)
+    {
+        isGameWinVisible = isVisible;
+
+        if (gameWinMenu != null)
+        {
+            gameWinMenu.SetActive(isVisible);
         }
     }
 
@@ -527,6 +578,24 @@ public class GameHandler : MonoBehaviour
         }
     }
 
+    private void HideGameOverStats()
+    {
+        UpdatePauseMenuState(showPause: false, showGameOver: false);
+    }
+
+    private void HideMainAndCredits()
+    {
+        if (mainMenu != null)
+        {
+            mainMenu.SetActive(false);
+        }
+
+        if (creditsScreen != null)
+        {
+            creditsScreen.SetActive(false);
+        }
+    }
+
     private void PauseGameTime()
     {
         Time.timeScale = 0f;
@@ -549,16 +618,21 @@ public class GameHandler : MonoBehaviour
         elapsedGameTime = 0f;
         collectedSausageCount = 0;
         hitCount = 0;
-        baseScore = ConsumeCarryOverScore();
-        currentScore = baseScore;
-        useAutomaticScoring = true;
+        escapeCount = 0;
+        rescuedSausageCount = 0;
+        currentScore = 0;
         UpdateStatsUI();
     }
 
     private void RecalculateScore()
     {
-        int timeScore = Mathf.FloorToInt(elapsedGameTime) * timeScorePerSecond;
-        currentScore = Mathf.Max(0, baseScore + collectedSausageCount * collectScore + timeScore - hitCount * hitPenalty);
+        currentScore = Mathf.Max(
+            0,
+            CollectedScore +
+            TimeScore +
+            EscapeScoreTotal +
+            RescuedScoreTotal -
+            HitPenaltyScore);
         UpdateStatsUI();
     }
 
@@ -573,6 +647,127 @@ public class GameHandler : MonoBehaviour
         {
             timeValueText.text = FormatTime(elapsedGameTime);
         }
+    }
+
+    private void UpdateGameWinMenu()
+    {
+        UpdateGameWinMenu(1f, true);
+    }
+
+    private void SetScoreItemValue(GameObject scoreItem, int value)
+    {
+        if (scoreItem == null)
+        {
+            return;
+        }
+
+        TMP_Text[] texts = scoreItem.GetComponentsInChildren<TMP_Text>(true);
+
+        for (int i = 0; i < texts.Length; i++)
+        {
+            if (texts[i] != null && texts[i].name == "txt_value")
+            {
+                texts[i].text = value.ToString();
+                return;
+            }
+        }
+    }
+
+    private void StartGameWinMenuAnimation()
+    {
+        gameWinRevealTimer = 0f;
+        gameWinFinalRevealTimer = 0f;
+        isGameWinCountingFinalScore = false;
+        isGameWinAnimationComplete = false;
+        UpdateGameWinMenu(0f, false);
+    }
+
+    private void UpdateGameWinMenuAnimation()
+    {
+        if (isGameWinAnimationComplete)
+        {
+            return;
+        }
+
+        if (ShouldSkipGameWinAnimation())
+        {
+            RevealFullGameWinMenu();
+            return;
+        }
+
+        if (!isGameWinCountingFinalScore)
+        {
+            gameWinRevealTimer += Time.unscaledDeltaTime;
+            float duration = Mathf.Max(0.01f, scoreRevealDuration);
+            float progress = Mathf.Clamp01(gameWinRevealTimer / duration);
+            UpdateGameWinMenu(progress, false);
+
+            if (progress >= 1f)
+            {
+                isGameWinCountingFinalScore = true;
+                gameWinFinalRevealTimer = 0f;
+            }
+
+            return;
+        }
+
+        gameWinFinalRevealTimer += Time.unscaledDeltaTime;
+        float finalDuration = Mathf.Max(0.01f, finalScoreRevealDuration);
+        float finalProgress = Mathf.Clamp01(gameWinFinalRevealTimer / finalDuration);
+        UpdateGameWinMenu(1f, true, finalProgress);
+
+        if (finalProgress >= 1f)
+        {
+            isGameWinAnimationComplete = true;
+        }
+    }
+
+    private bool ShouldSkipGameWinAnimation()
+    {
+        Keyboard keyboard = Keyboard.current;
+
+        if (keyboard != null && keyboard.anyKey.wasPressedThisFrame)
+        {
+            return true;
+        }
+
+        Mouse mouse = Mouse.current;
+
+        if (mouse == null)
+        {
+            return false;
+        }
+
+        return mouse.leftButton.wasPressedThisFrame ||
+               mouse.rightButton.wasPressedThisFrame ||
+               mouse.middleButton.wasPressedThisFrame;
+    }
+
+    private void RevealFullGameWinMenu()
+    {
+        gameWinRevealTimer = Mathf.Max(0.01f, scoreRevealDuration);
+        gameWinFinalRevealTimer = Mathf.Max(0.01f, finalScoreRevealDuration);
+        isGameWinCountingFinalScore = true;
+        isGameWinAnimationComplete = true;
+        UpdateGameWinMenu(1f, true, 1f);
+    }
+
+    private void UpdateGameWinMenu(float scoreProgress, bool showFinalScore, float finalScoreProgress = 0f)
+    {
+        float clampedScoreProgress = Mathf.Clamp01(scoreProgress);
+        float clampedFinalScoreProgress = Mathf.Clamp01(finalScoreProgress);
+
+        SetScoreItemValue(collectedScoreItem, GetAnimatedValue(CollectedScore, clampedScoreProgress));
+        SetScoreItemValue(timeScoreItem, GetAnimatedValue(TimeScore, clampedScoreProgress));
+        SetScoreItemValue(hitScoreItem, -GetAnimatedValue(HitPenaltyScore, clampedScoreProgress));
+        SetScoreItemValue(escapeScoreItem, GetAnimatedValue(EscapeScoreTotal, clampedScoreProgress));
+        SetScoreItemValue(rescuedScoreItem, GetAnimatedValue(RescuedScoreTotal, clampedScoreProgress));
+        SetScoreItemValue(finalScoreItem, showFinalScore ? GetAnimatedValue(currentScore, clampedFinalScoreProgress) : 0);
+    }
+
+    private static int GetAnimatedValue(int targetValue, float progress)
+    {
+        return Mathf.RoundToInt(targetValue * Mathf.Clamp01(progress));
     }
 
     private static string FormatTime(float timeInSeconds)
@@ -603,13 +798,12 @@ public class GameHandler : MonoBehaviour
 
         if (scene.name == SurvivalSceneName)
         {
-            ResetRunStats();
             isPaused = false;
             isGameOver = false;
             isMainMenuOpen = false;
             isCreditsOpen = false;
             HideAllMenus();
-            SetAutomaticScoringEnabled(false);
+            RecalculateScore();
             ResumeGameTime();
             return;
         }
@@ -658,6 +852,7 @@ public class GameHandler : MonoBehaviour
         AddPersistentCanvasRoot(pauseMenu);
         AddPersistentCanvasRoot(mainMenu);
         AddPersistentCanvasRoot(creditsScreen);
+        AddPersistentCanvasRoot(gameWinMenu);
 
         if (EventSystem.current != null)
         {
@@ -748,24 +943,6 @@ public class GameHandler : MonoBehaviour
         }
 
         return false;
-    }
-
-    private static void StoreCarryOverScore(int score)
-    {
-        PlayerPrefs.SetInt(CarryOverScoreKey, Mathf.Max(0, score));
-        PlayerPrefs.Save();
-    }
-
-    private static int ConsumeCarryOverScore()
-    {
-        if (!PlayerPrefs.HasKey(CarryOverScoreKey))
-        {
-            return 0;
-        }
-
-        int score = Mathf.Max(0, PlayerPrefs.GetInt(CarryOverScoreKey));
-        PlayerPrefs.DeleteKey(CarryOverScoreKey);
-        return score;
     }
 
     private void OnValidate()
