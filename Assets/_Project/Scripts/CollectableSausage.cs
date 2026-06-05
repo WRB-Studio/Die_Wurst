@@ -5,8 +5,6 @@ public class CollectableSausage : MonoBehaviour
     [SerializeField] private bool disableColliderOnCollect = true;
     [SerializeField] private bool forceTriggerCollider = true;
     [SerializeField] private bool addKinematicRigidbodyIfMissing = true;
-    [SerializeField] private float releaseBackwardOffset = 1f;
-
     private Collider cachedCollider;
     private Rigidbody cachedRigidbody;
     private LaneThrownObject laneThrownObject;
@@ -117,17 +115,6 @@ public class CollectableSausage : MonoBehaviour
         laneThrownObject.enabled = true;
 
         Vector3 releasePosition = transform.position;
-
-        if (chainRoot != null)
-        {
-            releasePosition += -chainRoot.forward * releaseBackwardOffset;
-        }
-        else
-        {
-            releasePosition += Vector3.left * releaseBackwardOffset;
-        }
-
-        transform.position = releasePosition;
         laneThrownObject.ResumeOnLane(releasePosition);
     }
 
