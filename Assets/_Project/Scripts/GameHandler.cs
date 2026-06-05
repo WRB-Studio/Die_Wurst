@@ -50,6 +50,7 @@ public class GameHandler : MonoBehaviour
     [Header("Game Win Animation")]
     [SerializeField] private float scoreRevealDuration = 4f;
     [SerializeField] private float finalScoreRevealDuration = 0.8f;
+    [SerializeField] private float scoreTickInterval = 0.08f;
 
     [Header("Gameplay")]
     [SerializeField] private SausageChainController playerChain;
@@ -93,6 +94,7 @@ public class GameHandler : MonoBehaviour
     private bool isGameWinAnimationComplete;
     private float gameWinRevealTimer;
     private float gameWinFinalRevealTimer;
+    private float gameWinScoreTickTimer;
 
     public int CurrentScore => currentScore;
     public int CollectedSausageCount => collectedSausageCount;
@@ -694,6 +696,7 @@ public class GameHandler : MonoBehaviour
     {
         gameWinRevealTimer = 0f;
         gameWinFinalRevealTimer = 0f;
+        gameWinScoreTickTimer = 0f;
         isGameWinCountingFinalScore = false;
         isGameWinAnimationComplete = false;
         UpdateGameWinMenu(0f, false);
@@ -715,6 +718,7 @@ public class GameHandler : MonoBehaviour
         if (!isGameWinCountingFinalScore)
         {
             gameWinRevealTimer += Time.unscaledDeltaTime;
+            UpdateGameWinCountTick();
             float duration = Mathf.Max(0.01f, scoreRevealDuration);
             float progress = Mathf.Clamp01(gameWinRevealTimer / duration);
             UpdateGameWinMenu(progress, false);
@@ -729,6 +733,7 @@ public class GameHandler : MonoBehaviour
         }
 
         gameWinFinalRevealTimer += Time.unscaledDeltaTime;
+        UpdateGameWinCountTick();
         float finalDuration = Mathf.Max(0.01f, finalScoreRevealDuration);
         float finalProgress = Mathf.Clamp01(gameWinFinalRevealTimer / finalDuration);
         UpdateGameWinMenu(1f, true, finalProgress);
@@ -764,9 +769,24 @@ public class GameHandler : MonoBehaviour
     {
         gameWinRevealTimer = Mathf.Max(0.01f, scoreRevealDuration);
         gameWinFinalRevealTimer = Mathf.Max(0.01f, finalScoreRevealDuration);
+        gameWinScoreTickTimer = 0f;
         isGameWinCountingFinalScore = true;
         isGameWinAnimationComplete = true;
         UpdateGameWinMenu(1f, true, 1f);
+    }
+
+    private void UpdateGameWinCountTick()
+    {
+        gameWinScoreTickTimer += Time.unscaledDeltaTime;
+        float tickInterval = Mathf.Max(0.02f, scoreTickInterval);
+
+        if (gameWinScoreTickTimer < tickInterval)
+        {
+            return;
+        }
+
+        gameWinScoreTickTimer = 0f;
+        AudioManager.Instance?.PlayCoinCountSfx();
     }
 
     private void UpdateGameWinMenu(float scoreProgress, bool showFinalScore, float finalScoreProgress = 0f)

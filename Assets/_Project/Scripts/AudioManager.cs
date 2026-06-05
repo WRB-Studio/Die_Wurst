@@ -18,6 +18,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip knifeSfx;
     [SerializeField] private AudioClip jumpSfx;
     [SerializeField] private AudioClip yaySfx;
+    [SerializeField] private AudioClip coinCountSfx;
     [SerializeField] private AudioClip hitOofSfx;
     [SerializeField] private AudioClip hitOuchSfx;
     [SerializeField] private AudioClip grinderSfx;
@@ -142,6 +143,11 @@ public class AudioManager : MonoBehaviour
     public void PlayYaySfx(float volume = 1f)
     {
         PlayOneShotSfx(yaySfx, volume);
+    }
+
+    public void PlayCoinCountSfx(float volume = 1f)
+    {
+        PlayOneShotSfx(coinCountSfx, volume);
     }
 
     public void PlayHitOofSfx(float volume = 1f)

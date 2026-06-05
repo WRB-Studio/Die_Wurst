@@ -9506,6 +9506,7 @@ MonoBehaviour:
   knifeSfx: {fileID: 8300000, guid: a45df466556d54d08849f48133569e1e, type: 3}
   jumpSfx: {fileID: 8300000, guid: 242f599574f962341b0708c0037d839a, type: 3}
   yaySfx: {fileID: 8300000, guid: 5feb7e294753643a8a526cc7996bd96d, type: 3}
+  coinCountSfx: {fileID: 8300000, guid: d1f9f368e1642ba4c9c384f01956df1e, type: 3}
   hitOofSfx: {fileID: 8300000, guid: 76804739256314d4fb5bac256c043029, type: 3}
   hitOuchSfx: {fileID: 8300000, guid: 74e12d6e0c0e647c8a1d2c883d4095b4, type: 3}
   grinderSfx: {fileID: 8300000, guid: c6b25aa39ef208b47b6492c90663e44c, type: 3}
@@ -10157,6 +10158,7 @@ MonoBehaviour:
   finalScoreItem: {fileID: 1373255625}
   scoreRevealDuration: 2
   finalScoreRevealDuration: 0.8
+  scoreTickInterval: 0.15
   playerChain: {fileID: 624894116}
   showMainMenuOnStart: 1
   collectScore: 1000
