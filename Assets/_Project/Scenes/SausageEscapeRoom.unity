@@ -10170,6 +10170,7 @@ MonoBehaviour:
   timeScorePerSecond: 50
   escapeScore: 500
   rescuedSausageScore: 100
+  gameOverMusic: {fileID: 8300000, guid: 804502ea8a93a6447b7cd65e7a7e539e, type: 3}
   startThrowInterval: 1.1
   endThrowInterval: 0.3
   throwIntervalCurve:

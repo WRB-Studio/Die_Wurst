@@ -62,6 +62,9 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private int escapeScore = 500;
     [SerializeField] private int rescuedSausageScore = 100;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip gameOverMusic;
+
     [Header("Difficulty")]
     [SerializeField] private float startThrowInterval = 1.2f;
     [SerializeField] private float endThrowInterval = 0.4f;
@@ -233,6 +236,7 @@ public class GameHandler : MonoBehaviour
         }
 
         RecalculateScore();
+        AudioManager.Instance?.PlaySFX("sfx_yay", false);
         isGameOver = true;
         isPaused = false;
         SetPauseMenuVisible(false);
@@ -334,7 +338,7 @@ public class GameHandler : MonoBehaviour
     {
         PrepareForSceneReload();
         ResetRunStats();
-        AudioManager.Instance?.RestartMusic();
+        AudioManager.Instance?.PlayStartMusic();
         ResumeGameTime();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
@@ -377,7 +381,7 @@ public class GameHandler : MonoBehaviour
     {
         PrepareForSceneReload();
         ResetRunStats();
-        AudioManager.Instance?.RestartMusic();
+        AudioManager.Instance?.PlayStartMusic();
         ResumeGameTime();
         SceneManager.LoadScene(EscapeRoomSceneName);
     }
@@ -474,6 +478,10 @@ public class GameHandler : MonoBehaviour
         SetPauseMenuVisible(true);
         SetGameWinMenuVisible(false);
         UpdatePauseMenuState(showPause: false, showGameOver: true);
+        if (gameOverMusic != null)
+        {
+            AudioManager.Instance?.PlayMusic(gameOverMusic);
+        }
         PauseGameTime();
     }
 

@@ -42,8 +42,7 @@ public class AudioManager : MonoBehaviour
     }
 
     private void Start() {
-        if (startMusic != null)
-            PlayMusic(startMusic);
+        PlayStartMusic();
     }
 
     // --- Musik ---
@@ -71,6 +70,16 @@ public class AudioManager : MonoBehaviour
         musicSource.Stop();
         musicSource.time = 0f;
         musicSource.Play();
+    }
+
+    public void PlayStartMusic()
+    {
+        if (startMusic == null)
+        {
+            return;
+        }
+
+        PlayMusic(startMusic);
     }
 
     // --- SFX per Index ---
