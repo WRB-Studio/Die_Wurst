@@ -3260,6 +3260,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wurst Animation Deluxe
       objectReference: {fileID: 0}
+    - target: {fileID: 1766695675083616165, guid: eb63f9b143e28524e92ca32e349d84f5, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 2230550985889917197, guid: eb63f9b143e28524e92ca32e349d84f5, type: 3}
       propertyPath: m_LocalScale.x
       value: 5
@@ -3312,9 +3316,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4054890565505011798, guid: eb63f9b143e28524e92ca32e349d84f5, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 4479317177052163263, guid: eb63f9b143e28524e92ca32e349d84f5, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439455975077518352, guid: eb63f9b143e28524e92ca32e349d84f5, type: 3}
+      propertyPath: m_SortingOrder
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 7934105767804424743, guid: eb63f9b143e28524e92ca32e349d84f5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9163191290061978901, guid: eb63f9b143e28524e92ca32e349d84f5, type: 3}
+      propertyPath: m_SortingOrder
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5927,7 +5947,7 @@ MonoBehaviour:
   targetYOffset: 0.8
   throwDuration: 1
   throwArcHeight: 2
-  extraSausageThrowChance: 0.3
+  extraSausageThrowChance: 0.25
   destroyAtX: -4
   shredderPullDistance: 0.4
   shredderDropDistance: 2.5
@@ -7336,18 +7356,15 @@ MonoBehaviour:
   windowTransform: {fileID: 8719421271645186014}
   windowHingeTransform: {fileID: 235529946}
   exitTrigger: {fileID: 0}
-  minWindowEventDelay: 18
-  maxWindowEventDelay: 188
-  minWindowOpenDuration: 4
-  maxWindowOpenDuration: 7
+  minWindowEventDelay: 1
+  maxWindowEventDelay: 1
+  minWindowOpenDuration: 1
+  maxWindowOpenDuration: 1
   openLocalEulerOffset: {x: 75, y: 0, z: 0}
   windowRotationSpeed: 240
   windowHitLocalOffset: {x: 0, y: -0.15, z: 0.05}
   minLandingLaneIndex: 1
   maxLandingLaneIndex: 2
-  laneTargetMinXOffset: -0.25
-  laneTargetMaxXOffset: 0.25
-  laneTargetYOffset: 0
   logWindowEvents: 0
 --- !u!1 &1689682798
 GameObject:
@@ -8001,6 +8018,14 @@ PrefabInstance:
       value: -54.25
       objectReference: {fileID: 0}
     - target: {fileID: 7030268915295551948, guid: 3d0e883653c2b5f42becaee1f3221728, type: 3}
+      propertyPath: m_text
+      value: 999999
+      objectReference: {fileID: 0}
+    - target: {fileID: 7030268915295551948, guid: 3d0e883653c2b5f42becaee1f3221728, type: 3}
+      propertyPath: m_fontSize
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 7030268915295551948, guid: 3d0e883653c2b5f42becaee1f3221728, type: 3}
       propertyPath: m_fontColor.b
       value: 0.583333
       objectReference: {fileID: 0}
@@ -8011,6 +8036,14 @@ PrefabInstance:
     - target: {fileID: 7030268915295551948, guid: 3d0e883653c2b5f42becaee1f3221728, type: 3}
       propertyPath: m_fontColor.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7030268915295551948, guid: 3d0e883653c2b5f42becaee1f3221728, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 7030268915295551948, guid: 3d0e883653c2b5f42becaee1f3221728, type: 3}
+      propertyPath: m_TextWrappingMode
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7030268915295551948, guid: 3d0e883653c2b5f42becaee1f3221728, type: 3}
       propertyPath: m_fontColor32.rgba

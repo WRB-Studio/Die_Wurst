@@ -462,6 +462,21 @@ public class ChefThrowSpawner : MonoBehaviour
         return 0f;
     }
 
+    public float GetMinTargetXOffset()
+    {
+        return minTargetXOffset;
+    }
+
+    public float GetMaxTargetXOffset()
+    {
+        return maxTargetXOffset;
+    }
+
+    public float GetTargetYOffset()
+    {
+        return targetYOffset;
+    }
+
     private void PlayThrowAnimation()
     {
         if (cookAnimator == null || string.IsNullOrWhiteSpace(throwAnimationStateName))

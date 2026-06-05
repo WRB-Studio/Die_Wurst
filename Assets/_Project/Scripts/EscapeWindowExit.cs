@@ -28,9 +28,6 @@ public class EscapeWindowExit : MonoBehaviour
     [Header("Landing Lane")]
     [SerializeField] private int minLandingLaneIndex = 1;
     [SerializeField] private int maxLandingLaneIndex = 2;
-    [SerializeField] private float laneTargetMinXOffset = -0.25f;
-    [SerializeField] private float laneTargetMaxXOffset = 0.25f;
-    [SerializeField] private float laneTargetYOffset = 0f;
 
     [Header("Debug")]
     [SerializeField] private bool logWindowEvents;
@@ -149,9 +146,9 @@ public class EscapeWindowExit : MonoBehaviour
             GetWorldPoint(windowHitLocalOffset),
             minLandingLaneIndex,
             maxLandingLaneIndex,
-            laneTargetMinXOffset,
-            laneTargetMaxXOffset,
-            laneTargetYOffset,
+            chefThrowSpawner.GetMinTargetXOffset(),
+            chefThrowSpawner.GetMaxTargetXOffset(),
+            chefThrowSpawner.GetTargetYOffset(),
             OpenWindowAfterImpact);
 
         if (!specialThrowStarted)
