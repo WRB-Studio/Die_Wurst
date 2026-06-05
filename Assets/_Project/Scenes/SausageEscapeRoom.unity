@@ -5927,7 +5927,7 @@ MonoBehaviour:
   targetYOffset: 0.8
   throwDuration: 1
   throwArcHeight: 2
-  extraSausageThrowChance: 0.25
+  extraSausageThrowChance: 0.3
   destroyAtX: -4
   shredderPullDistance: 0.4
   shredderDropDistance: 2.5
@@ -7336,8 +7336,8 @@ MonoBehaviour:
   windowTransform: {fileID: 8719421271645186014}
   windowHingeTransform: {fileID: 235529946}
   exitTrigger: {fileID: 0}
-  minWindowEventDelay: 2
-  maxWindowEventDelay: 2
+  minWindowEventDelay: 18
+  maxWindowEventDelay: 188
   minWindowOpenDuration: 4
   maxWindowOpenDuration: 7
   openLocalEulerOffset: {x: 75, y: 0, z: 0}
