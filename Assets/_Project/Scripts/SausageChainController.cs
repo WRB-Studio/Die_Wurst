@@ -158,7 +158,14 @@ public class SausageChainController : MonoBehaviour
         float horizontalSpeed = Mathf.Max(followSmoothness, 0.01f) * Time.deltaTime;
         float laneSmoothTime = Mathf.Max(laneFollowSmoothness + laneFollowDelayPerSegment * segmentIndex, 0.01f);
 
-        currentPosition.x = Mathf.MoveTowards(currentPosition.x, targetPosition.x, horizontalSpeed);
+        if (targetPosition.x > currentPosition.x)
+        {
+            currentPosition.x = targetPosition.x;
+        }
+        else
+        {
+            currentPosition.x = Mathf.MoveTowards(currentPosition.x, targetPosition.x, horizontalSpeed);
+        }
         float nextY = Mathf.SmoothDamp(currentPosition.y, targetPosition.y, ref segmentData.FollowVelocity.y, laneSmoothTime);
         float nextZ = Mathf.SmoothDamp(currentPosition.z, targetPosition.z, ref segmentData.FollowVelocity.z, laneSmoothTime);
 
