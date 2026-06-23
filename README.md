@@ -4,9 +4,7 @@
 
 ## Download
 
-[Download the latest playable build here](https://github.com/WRB-Studio/Die_Wurst/releases/download/v1.0/Meat.me.Outside.V1.zip)
-
-[Play or follow the game on itch.io](https://wrb-studio.itch.io/meat-me-outside)
+[Download, Play and follow the game on itch.io](https://wrb-studio.itch.io/meat-me-outside)
 
 ## DE
 
