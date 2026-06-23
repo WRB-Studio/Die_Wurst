@@ -28,6 +28,7 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private GameObject scoreImage;
     [SerializeField] private GameObject timeImage;
     [SerializeField] private Button resumeButton;
+    [SerializeField] private Button pauseButton;
     [SerializeField] private Button replayButton;
     [SerializeField] private Button pauseMainMenuButton;
     [SerializeField] private Button pauseExitButton;
@@ -38,6 +39,7 @@ public class GameHandler : MonoBehaviour
     [SerializeField] private Button creditsMainMenuButton;
     [SerializeField] private TMP_Text scoreValueText;
     [SerializeField] private TMP_Text timeValueText;
+    [SerializeField] private TMP_Text versionText;
 
     [Header("Game Win Score Items")]
     [SerializeField] private GameObject collectedScoreItem;
@@ -125,6 +127,7 @@ public class GameHandler : MonoBehaviour
         ApplyConveyorMaterialSettings();
         Time.timeScale = 1f;
         RegisterButtons();
+        UpdateVersionText();
     }
 
     private void Start()
@@ -321,6 +324,7 @@ public class GameHandler : MonoBehaviour
         isPaused = true;
         SetPauseMenuVisible(true);
         UpdatePauseMenuState(showPause: true, showGameOver: false);
+        UpdatePauseButtonVisibility();
         PauseGameTime();
     }
 
@@ -334,6 +338,7 @@ public class GameHandler : MonoBehaviour
         isPaused = false;
         SetPauseMenuVisible(false);
         UpdatePauseMenuState(showPause: true, showGameOver: false);
+        UpdatePauseButtonVisibility();
         ResumeGameTime();
     }
 
@@ -372,6 +377,7 @@ public class GameHandler : MonoBehaviour
         isGameOver = false;
         ResetRunStats();
         HideAllMenus();
+        UpdatePauseButtonVisibility();
         ResumeGameTime();
         AudioManager.Instance?.PlayGameplayMusic();
     }
@@ -482,6 +488,7 @@ public class GameHandler : MonoBehaviour
         SetPauseMenuVisible(true);
         SetGameWinMenuVisible(false);
         UpdatePauseMenuState(showPause: false, showGameOver: true);
+        UpdatePauseButtonVisibility();
         PauseGameTime();
         AudioManager.Instance?.PlayGameOverMusic();
     }
@@ -495,6 +502,7 @@ public class GameHandler : MonoBehaviour
         SetPauseMenuVisible(false);
         UpdatePauseMenuState(showPause: true, showGameOver: false);
         SetGameWinMenuVisible(false);
+        UpdatePauseButtonVisibility();
 
         HideMainAndCredits();
     }
@@ -507,6 +515,7 @@ public class GameHandler : MonoBehaviour
         SetPauseMenuVisible(false);
         UpdatePauseMenuState(showPause: true, showGameOver: false);
         SetGameWinMenuVisible(false);
+        UpdatePauseButtonVisibility();
 
         if (mainMenu != null)
         {
@@ -528,6 +537,7 @@ public class GameHandler : MonoBehaviour
         UpdatePauseMenuState(showPause: true, showGameOver: false);
         SetGameWinMenuVisible(false);
         isCreditsOpen = false;
+        UpdatePauseButtonVisibility();
 
         HideMainAndCredits();
     }
@@ -548,6 +558,21 @@ public class GameHandler : MonoBehaviour
         {
             gameWinMenu.SetActive(isVisible);
         }
+
+        UpdatePauseButtonVisibility();
+    }
+
+    private void UpdatePauseButtonVisibility()
+    {
+        if (pauseButton == null)
+        {
+            return;
+        }
+
+        string sceneName = SceneManager.GetActiveScene().name;
+        bool isPauseButtonScene = sceneName == EscapeRoomSceneName || sceneName == SurvivalSceneName;
+        bool shouldShow = isPauseButtonScene && !isPaused && !isGameOver && !isMainMenuOpen && !isCreditsOpen && !isGameWinVisible;
+        pauseButton.gameObject.SetActive(shouldShow);
     }
 
     private void UpdatePauseMenuState(bool showPause, bool showGameOver)
@@ -665,6 +690,28 @@ public class GameHandler : MonoBehaviour
         if (timeValueText != null)
         {
             timeValueText.text = FormatTime(elapsedGameTime);
+        }
+    }
+
+    private void UpdateVersionText()
+    {
+        if (versionText == null)
+        {
+            TMP_Text[] texts = FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+            foreach (TMP_Text text in texts)
+            {
+                if (text != null && text.name == "txtVersion")
+                {
+                    versionText = text;
+                    break;
+                }
+            }
+        }
+
+        if (versionText != null)
+        {
+            versionText.text = $"v.{Application.version}";
         }
     }
 
@@ -832,6 +879,8 @@ public class GameHandler : MonoBehaviour
         EnsureEventSystemExists();
         DisableDuplicatePersistentSceneRoots(scene);
         ResolveSceneReferences();
+        RegisterButtons();
+        UpdatePauseButtonVisibility();
 
         if (scene.name == SurvivalSceneName)
         {
@@ -841,6 +890,7 @@ public class GameHandler : MonoBehaviour
             isCreditsOpen = false;
             HideAllMenus();
             RecalculateScore();
+            UpdatePauseButtonVisibility();
             ResumeGameTime();
             return;
         }
@@ -857,6 +907,7 @@ public class GameHandler : MonoBehaviour
     private void RegisterButtons()
     {
         BindButton(resumeButton, ResumeGame);
+        BindButton(pauseButton, PauseGame);
         BindButton(replayButton, ReplayGame);
         BindButton(pauseMainMenuButton, ReturnToMainMenu);
         BindButton(pauseExitButton, QuitGame);
