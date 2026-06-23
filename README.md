@@ -2,9 +2,7 @@
 
 ![Die Wurst Splash Screen](Assets/_Project/Art/SplashScreen.png)
 
-## Download
-
-[Download, Play and follow the game on itch.io](https://wrb-studio.itch.io/meat-me-outside)
+## [Play in Browser or download the game on itch.io](https://wrb-studio.itch.io/meat-me-outside)
 
 ## DE
 
