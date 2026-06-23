@@ -127,6 +127,7 @@ public class GameHandler : MonoBehaviour
         ApplyConveyorMaterialSettings();
         Time.timeScale = 1f;
         RegisterButtons();
+        UpdateExitButtonVisibility();
         UpdateVersionText();
     }
 
@@ -372,6 +373,16 @@ public class GameHandler : MonoBehaviour
 
     public void StartGame()
     {
+        if (SceneManager.GetActiveScene().name != EscapeRoomSceneName)
+        {
+            PrepareForSceneReload();
+            ResetRunStats();
+            AudioManager.Instance?.PlayGameplayMusic();
+            ResumeGameTime();
+            SceneManager.LoadScene(EscapeRoomSceneName);
+            return;
+        }
+
         isMainMenuOpen = false;
         isPaused = false;
         isGameOver = false;
@@ -880,6 +891,7 @@ public class GameHandler : MonoBehaviour
         DisableDuplicatePersistentSceneRoots(scene);
         ResolveSceneReferences();
         RegisterButtons();
+        UpdateExitButtonVisibility();
         UpdatePauseButtonVisibility();
 
         if (scene.name == SurvivalSceneName)
@@ -916,6 +928,38 @@ public class GameHandler : MonoBehaviour
         BindButton(mainMenuCreditsButton, OpenCredits);
         BindButton(mainMenuExitButton, QuitGame);
         BindButton(creditsMainMenuButton, ReturnToMainMenu);
+    }
+
+    private void UpdateExitButtonVisibility()
+    {
+        bool showExitButtons = !Application.platform.Equals(RuntimePlatform.WebGLPlayer);
+
+        if (pauseExitButton != null)
+        {
+            pauseExitButton.gameObject.SetActive(showExitButtons);
+        }
+
+        if (mainMenuExitButton != null)
+        {
+            mainMenuExitButton.gameObject.SetActive(showExitButtons);
+        }
+
+        Button gameWinExitButton = FindGameWinExitButton();
+        if (gameWinExitButton != null)
+        {
+            gameWinExitButton.gameObject.SetActive(showExitButtons);
+        }
+    }
+
+    private Button FindGameWinExitButton()
+    {
+        if (gameWinMenu == null)
+        {
+            return null;
+        }
+
+        Transform exitTransform = gameWinMenu.transform.Find("bt_exit");
+        return exitTransform != null ? exitTransform.GetComponent<Button>() : null;
     }
 
     private void BindButton(Button button, UnityEngine.Events.UnityAction action)
