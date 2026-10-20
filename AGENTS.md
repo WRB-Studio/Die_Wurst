@@ -1,112 +1,66 @@
-# AGENTS.md
+# Allgemeine Regeln für Coding-Agenten
+
+Diese Regeln gelten projektübergreifend. Projektspezifische Ergänzungen weiter unten bleiben gültig, soweit sie den allgemeinen Regeln nicht widersprechen.
 
 ## Arbeitsweise
-Du bist ein pragmatischer Coding-Agent fuer dieses Projekt.
+- Selbstständig, pragmatisch und lösungsorientiert arbeiten; notwendige technische Entscheidungen innerhalb eines erteilten Auftrags selbst treffen.
+- Die einfachste robuste und wartbare Lösung bevorzugen. Overengineering, unnötige Abstraktionen und Zukunftsarchitektur vermeiden.
+- Änderungen auf die Aufgabe begrenzen; keine großen Refactorings ohne Auftrag.
+- Planung, Brainstorming und Vorschläge sind keine Implementierungsfreigabe.
+- Neue Funktionen zuerst in einer kleinen, funktionsfähigen Ausführung umsetzen.
 
-Arbeite zielgerichtet, ruhig und effizient.
-Bevorzugt werden einfache, robuste und gut wartbare Loesungen statt cleverer, unnoetig komplexer Konstrukte.
+## Git und Releases
+- Vor Änderungen einen geeigneten Branch `codex/<aufgabe>` anlegen oder den bereits zur Aufgabe gehörenden verwenden. Niemals direkt auf `main` entwickeln.
+- Nicht selbstständig nach `origin` pushen oder in `main` mergen; dafür ist ein entsprechender Auftrag erforderlich.
+- Kurze, einheitliche und verständliche Commit-Messages verwenden.
+- Produktversionen zu definierten Release-Zeitpunkten aktualisieren, nicht automatisch bei jeder Fehlerbehebung.
 
-## Prioritaeten
-1. Funktionierende Loesung
-2. Einfache Struktur
-3. Gute Lesbarkeit
-4. Moeglichst geringe Seiteneffekte
-5. Nur noetige Aenderungen
+## Qualität und Abnahme
+- Kurze Compilerprüfungen, statische Analysen und gezielte Tests innerhalb der Prozessgrenze eigenständig ausführen.
+- Fehlerursachen untersuchen, korrigieren und gezielt erneut prüfen; keine endlosen Wiederholungen.
+- Keine unnötigen umfassenden Testreihen ausführen.
+- Eine Aufgabe ist erst fertig, wenn ihre vereinbarten Abnahmekriterien erfüllt sind.
+- Klar unterscheiden: implementiert, statisch geprüft, kompiliert, automatisiert getestet und praktisch abgenommen.
+- Keine Testergebnisse, Quellen, Fähigkeiten oder Erfolge erfinden.
 
-## Wichtige Regeln
-- Veraendere nur das, was fuer die Aufgabe wirklich noetig ist.
-- Vermeide Overengineering, unnoetige Abstraktionen und vorschnelle Generalisierung.
-- Halte Funktionen, Klassen und Dateien eher klein und verstaendlich.
-- Bleibe bei bestehenden Konventionen des Projekts, wenn sie sinnvoll sind.
-- Wenn bestehender Code unnoetig kompliziert ist, vereinfache ihn lieber als neue Komplexitaet hinzuzufuegen.
-- Erklaere kurz, warum du eine Loesung so umsetzt, wenn die Entscheidung nicht offensichtlich ist.
+## Prozessdauer und Rückfragen
+- Einen einzelnen laufenden Prozess spätestens nach 15 Minuten unterbrechen oder beenden und nachfragen, ob er fortgesetzt werden soll.
+- Dabei bisherigen Stand, verbleibenden Aufwand und sinnvolle Fortsetzung kurz nennen.
+- Passende Timeouts vorsehen; keine automatische Verlängerung, Neustartschleife oder Umgehung der Rückfrage.
+- Normale kurze Arbeit autonom erledigen; bei langen Entwicklungsvorhaben knappe Zwischenstände geben.
 
-## Arbeitsstil
-- Schreibe Code und Strukturen so einfach, dass auch Nicht-Profis und Hobby-Entwickler sie gut verstehen koennen.
-- Bevorzuge klare Lesbarkeit statt cleverer oder unnoetig komplizierter Loesungen.
-- Vermeide unnoetige Verkomplizierung von Architektur, Mustern oder Codeaufbau.
-- Baue keine uebertriebenen AAA-Strukturen, wenn eine einfache Loesung voellig ausreicht.
+## Dokumentation und Aufgaben
+- Einen sinnvoll geordneten Dokumentationsordner verwenden. Vorhandene `docs/`, `Documentation/` oder `Assets/Docs/` respektieren; sonst `documentation/` anlegen.
+- Dort eine TODO-Liste für Ideen, offene Aufgaben und zukünftige Umsetzungen sowie eine Liste `Umgesetzt` für tatsächlich abgeschlossene Arbeiten führen.
+- Bevorzugt `TODO.md` und `Umgesetzt.md` verwenden. Bestehende zentrale Tracker mit beiden Bereichen fortführen, statt doppelte Listen zu pflegen; bei späterer Umstellung Inhalte verlustfrei migrieren.
+- Ideen ausdrücklich von beauftragten Aufgaben trennen. Teilumsetzungen aufteilen; offene Anteile bleiben in TODO.
+- Erledigte Aufgaben mit Datum und knapper Beschreibung in `Umgesetzt` übernehmen; Implementierung, Tests und Abnahme getrennt kennzeichnen.
+- Dokumentation nach Themen gliedern, regelmäßig aktualisieren und Dubletten vermeiden.
 
-## Token- und Kontextdisziplin
-- Verschwende keine Tokens mit langen Wiederholungen, unnoetigen Erklaerungen oder Offensichtlichem.
-- Antworte knapp, konkret und aufgabenbezogen.
-- Lies nicht mehr Dateien als noetig.
-- Gib keine langen Zusammenfassungen des gesamten Projekts, wenn nur ein Teil relevant ist.
-- Wenn eine kurze Antwort reicht, liefere nur die kurze Antwort.
+## Technik, UI und Sicherheit
+- Bei versionsabhängigen APIs nach Möglichkeit aktuelle offizielle Dokumentation nutzen.
+- Neue Abhängigkeiten nur bei konkretem Nutzen hinzufügen.
+- Wiederverwendbare UI-Komponenten nutzen; in Unity bevorzugt Szenen und Prefabs. Laufzeit-UI ist erlaubt, wenn technisch sinnvoll.
+- Keine unnötigen Assets oder Prefabs erstellen.
+- Zugangsdaten und Geheimnisse schützen. Keine Benutzerdateien ungefragt löschen und keine kostenpflichtigen Aktionen oder Veröffentlichungen ohne Freigabe.
+- Bei riskanten Änderungen Folgen kurz benennen.
 
-## Code-Stil
-- Bevorzuge klare, direkte Implementierungen.
-- Nutze sprechende Namen.
-- Vermeide unnoetige Verschachtelung.
-- Kommentiere nur dort, wo es wirklich hilft.
-- Schreibe keinen unnoetig smarten Code.
+## Kontext und Kommunikation
+- Nur relevante Dateien, Logs und Informationen lesen; Tokens, Zeit und Kontext sparsam einsetzen.
+- Auf Deutsch und in kurzen, klaren Stichpunkten kommunizieren statt langen Fließtexten.
+- Abschlussbericht stets knapp: **Geändert**, **Geprüft**, **Offen**.
 
-## Bei Aenderungen
-- Pruefe zuerst, wo die Aenderung logisch hingehoert.
-- Halte Aenderungen lokal, sofern moeglich.
-- Breche grosse Aufgaben in kleine, sichere Schritte herunter.
-- Wenn mehrere Wege moeglich sind, nimm den simpelsten funktionalen Weg.
+## Entwicklungsablauf
+1. Ziel und Abnahmekriterien klären.
+2. Kleinste sinnvolle Lösung implementieren.
+3. Gezielt prüfen, Fehler korrigieren und erneut prüfen.
+4. TODO/Umgesetzt und notwendige Dokumentation aktualisieren.
+5. Ergebnis knapp mit tatsächlichem Prüfstatus melden.
 
-## Bei Bugs
-- Suche zuerst die wahrscheinlichste und lokalste Ursache.
-- Mache keine grossflaechigen Umbauten ohne klaren Grund.
-- Schlage nur dann Refactoring vor, wenn es die Aufgabe wirklich stabiler oder einfacher macht.
+---
 
-## Bei neuen Features
-- Erst die einfachste funktionierende Version bauen.
-- Keine unnoetige Zukunftsarchitektur einbauen.
-- Erweiterbarkeit ist gut, aber nicht auf Kosten von Einfachheit.
+## Projektspezifische Ergänzungen
 
-## Git-Commit-Stil
-- Commit-Messages duerfen locker, leicht humorvoll und gern mit mildem Sarkasmus formuliert sein, solange sie lesbar bleiben.
-- Der Ton darf verspielt sein, aber nicht unklar oder ueberladen.
-- Commit-Messages sollen kurz bleiben und nicht unnoetig ausarten.
-
-## Commit-Format
-Commit-Messages nutzen immer exakt dieses Format:
-
-```text
-English title here
-
-[DE]
-Deutscher Titel hier
-
-- Punkt
-- Punkt
-
-[EN]
-English title here
-
-- Point
-- Point
-```
-
-## Regeln fuer Commit-Messages
-- Der oberste Titel ist immer auf Englisch.
-- Der Titel im `[EN]`-Block ist immer exakt identisch mit dem obersten Titel.
-- Im `[DE]`-Block steht ein eigener deutscher Titel.
-- Es gibt keine zusaetzlichen Beschreibungssaetze.
-- Nur kurze, knappe Bulletpoints verwenden.
-- Bulletpoints in Deutsch und Englisch inhaltlich passend halten.
-
-## Kommunikation
-- Antworte auf Deutsch, ausser Code, API-Namen oder Dateinamen erfordern Englisch.
-- Sei direkt und professionell.
-- Zeige bei Bedarf kurz:
-  - was geaendert wurde
-  - warum
-  - welche Risiken es gibt
-
-## Zusaetzliche Vorgabe
-Wenn eine Loesung zwar funktioniert, aber unnoetig komplex wirkt, bevorzuge ausdruecklich die simplere Variante.
-
-Wenn du dir unsicher bist:
-- nicht raten
-- kurz benennen, was unklar ist
-- dann den wahrscheinlichsten, kleinsten und sichersten Weg waehlen
-
-Vermeide AI-typische Muster wie:
-- zu viele Helferfunktionen
-- zu viele Abstraktionsschichten
-- vorsorgliche Architektur fuer Eventualfaelle
-- unnoetig aufgeblaehte Dateistrukturen
+## Code-Verständlichkeit
+- Code auch für Hobby-Entwickler gut lesbar halten.
+- Commit-Nachrichten dürfen einen dezenten humorvollen Ton haben, bleiben aber kurz und eindeutig.
